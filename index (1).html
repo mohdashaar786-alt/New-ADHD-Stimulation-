@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sensory & Cognitive Distortion Simulator</title>
+  <meta name="description" content="Try a timed classroom math quiz while glare, noise, and racing thoughts build up, then learn what helps autistic children and children with ADHD at school." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sensory & Cognitive Distortion Simulator" />
+  <meta property="og:description" content="An interactive illustration of sensory overload in a classroom, and practical ways to help." />
+  <meta property="og:url" content="https://mohdashaar786-alt.github.io/ADHD-Stimulation-/" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23020617'/%3E%3Cpath d='M5 16s4-7 11-7 11 7 11 7-4 7-11 7S5 16 5 16Z' fill='none' stroke='%23f43f5e' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23f43f5e'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@1.74.0/dist/umd/lucide.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .heading-font {
+      font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    }
+    .mono-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .chalk-font {
+      font-family: 'Caveat', cursive;
+    }
+
+    /* 1. Fluorescent glare: deliberately slow and low-contrast so it never flashes
+       (WCAG 2.3.1 allows no more than 3 flashes per second above the threshold) */
+    @keyframes glareDrift {
+      0%, 100% { filter: contrast(100%) brightness(100%) saturate(100%); }
+      50%      { filter: contrast(106%) brightness(106%) saturate(104%); }
+    }
+    .flicker-active {
+      animation: glareDrift 5s ease-in-out infinite;
+    }
+
+    /* 2. Violent Screen Jitter on Meltdown (>75%) */
+    @keyframes meltdownJitter {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      12%  { transform: translate(-4.5px, 3px) rotate(-0.8deg); }
+      28%  { transform: translate(4px, -3.5px) rotate(0.7deg); }
+      44%  { transform: translate(-3.5px, -3px) rotate(-0.5deg); }
+      60%  { transform: translate(4.5px, 2.5px) rotate(0.8deg); }
+      76%  { transform: translate(-2.5px, 4px) rotate(-0.4deg); }
+      92%  { transform: translate(3.5px, -2.5px) rotate(0.6deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    .shake-active {
+      animation: meltdownJitter 0.09s infinite linear;
+    }
+    .flicker-active.shake-active {
+      animation: glareDrift 5s ease-in-out infinite, meltdownJitter 0.09s infinite linear;
+    }
+
+    /* 3. Intrusive ADHD Thought Cloud Flooding */
+    /* Thoughts burst in with an overshoot, wobble, then drift away.
+       Motion only: brightness never flashes. */
+    @keyframes thoughtPopIn {
+      0%   { transform: scale(0.2) translateY(30px); opacity: 0; }
+      9%   { transform: scale(1.32) translateY(-6px); opacity: 1; }
+      15%  { transform: scale(0.9) translateY(0); }
+      21%  { transform: scale(1.06); }
+      27%  { transform: scale(1); }
+      84%  { transform: scale(1) translateY(-12px); opacity: 1; }
+      100% { transform: scale(0.85) translateY(-40px); opacity: 0; }
+    }
+    .thought-bubble {
+      animation: thoughtPopIn 3.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes thoughtWobble {
+      0%, 100% { transform: rotate(calc(var(--tilt, 0deg) - 2.5deg)); }
+      50%      { transform: rotate(calc(var(--tilt, 0deg) + 2.5deg)); }
+    }
+    .thought-inner {
+      animation: thoughtWobble 0.9s ease-in-out infinite;
+    }
+
+    /* Meltdown cardiac pulse vignette */
+    @keyframes pulseVignette {
+      0%, 100% { box-shadow: inset 0 0 70px rgba(225, 29, 72, 0.45); }
+      50%      { box-shadow: inset 0 0 160px rgba(225, 29, 72, 0.9); }
+    }
+    .pulse-vignette {
+      animation: pulseVignette 0.6s infinite ease-in-out;
+    }
+
+    /* Restlessness dial: answer buttons refuse to sit still */
+    @keyframes restlessSway {
+      0%, 100% { transform: translateX(0); }
+      25%      { transform: translateX(calc(var(--restless, 0px) * -1)); }
+      75%      { transform: translateX(var(--restless, 0px)); }
+    }
+    .restless-active {
+      animation: restlessSway 1.4s ease-in-out infinite;
+    }
+
+    /* Subtle bird flutter animation in window */
+    @keyframes birdBob {
+      0%, 34%, 100% { transform: rotate(0deg); }
+      40%, 58%      { transform: rotate(-9deg); }
+      66%, 82%      { transform: rotate(6deg); }
+    }
+    .bird-flutter {
+      transform-box: fill-box;
+      transform-origin: 40% 90%;
+      animation: birdBob 4.2s ease-in-out infinite;
+    }
+    @keyframes birdSing {
+      0%, 100% { transform: rotate(0deg); }
+      50%      { transform: rotate(-12deg); }
+    }
+    .bird-flutter.is-singing {
+      animation: birdSing 0.42s ease-in-out 5;
+    }
+
+    /* Fluorescent light pulse */
+    @keyframes tubePulse {
+      0%, 100% { opacity: 0.9; }
+      50%      { opacity: 1; filter: drop-shadow(0 0 14px rgba(254, 240, 138, 0.8)); }
+    }
+    .tube-glowing {
+      animation: tubePulse 2s ease-in-out infinite;
+    }
+
+    /* Fullscreen Mode Enhancements */
+    #simStageViewport:fullscreen {
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      max-width: none !important;
+      margin: 0 !important;
+    }
+    #simStageViewport:-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      max-width: none !important;
+      margin: 0 !important;
+    }
+
+    /* Smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Clear keyboard focus */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid #4f46e5;
+      outline-offset: 2px;
+    }
+
+    /* Respect visitors who ask their device to reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .flicker-active, .shake-active, .flicker-active.shake-active, .pulse-vignette,
+      .thought-bubble, .thought-inner, .restless-active, .bird-flutter, .tube-glowing, .animate-pulse, .animate-bounce {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+
+  <a href="#simulatorSection" class="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:top-2 focus:left-2 focus:bg-white focus:px-3 focus:py-2 focus:rounded-lg focus:font-bold">Skip to the simulator</a>
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-5 py-2.5 sm:py-3.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 shrink-0 rounded-xl bg-slate-950 flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="eye" class="w-5 h-5 text-rose-500"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base leading-tight font-bold heading-font tracking-tight text-slate-950">Sensory & Cognitive Distortion Simulator</h1>
+          <p class="hidden md:block text-xs text-slate-500">One illustration of sensory overload in a classroom</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="#simulatorSection" class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition">
+          <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          <span>Jump to Simulator</span>
+        </a>
+
+        <!-- Fullscreen Focus Mode Button in Header -->
+        <button id="headerFullscreenBtn" onclick="toggleFullscreen()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-xs font-bold text-indigo-900 shadow-sm transition">
+          <i data-lucide="maximize" id="headerFsIcon" class="w-4 h-4 text-indigo-600"></i>
+          <span id="headerFsText" class="sr-only lg:not-sr-only">Fullscreen Focus</span>
+        </button>
+
+        <button id="masterAudioBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 shadow-sm transition">
+          <i data-lucide="volume-x" id="masterAudioIcon" class="w-4 h-4 text-slate-400"></i>
+          <span id="masterAudioText" class="sr-only sm:not-sr-only">Sound: Off</span>
+        </button>
+
+        <button id="calmResetBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-xs font-bold text-emerald-800 transition">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+          <span class="sr-only lg:not-sr-only">Calm Baseline</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- VISUAL HERO & STEP-BY-STEP INFO SECTION   -->
+  <!-- ========================================== -->
+  <section class="border-b border-slate-200 bg-gradient-to-b from-slate-50 via-white to-slate-50/50 py-10 px-5">
+    <div class="max-w-7xl mx-auto flex flex-col gap-8">
+
+      <!-- HERO HEADLINE & BADGE -->
+      <div class="max-w-3xl space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100/80 border border-purple-200 text-purple-900 text-xs font-bold">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600"></i>
+          <span>An Illustrated Sensory Experience</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold heading-font tracking-tight text-slate-950 leading-tight">
+          What Can Sensory Overload Feel Like in a Classroom?
+        </h2>
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+          Many autistic children and children with ADHD experience sound, light, and touch differently. Some find background input hard to tune out, some notice less of it, and some seek more of it. This simulator shows one possible experience of overload. It can't show what any particular child feels.
+        </p>
+      </div>
+
+      <!-- VISUAL 4-STEP WALKTHROUGH CARDS -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <!-- STEP 1 -->
+        <div class="relative bg-white rounded-2xl p-5 border-2 border-slate-200 hover:border-amber-400 transition-all shadow-sm hover:shadow-md flex flex-col justify-between group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-700 font-extrabold text-sm flex items-center justify-center mono-font border border-amber-200">
+                01
+              </span>
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                <i data-lucide="sun" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm">Harsh Lighting</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Lighting that seems fine to one person can be distracting or even painful to another. Older fluorescent tubes flicker 100 to 120 times a second, which has been linked with headaches and eyestrain.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-bold text-amber-700">
+            <span>Light</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="relative bg-white rounded-2xl p-5 border-2 border-slate-200 hover:border-rose-400 transition-all shadow-sm hover:shadow-md flex flex-col justify-between group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-700 font-extrabold text-sm flex items-center justify-center mono-font border border-rose-200">
+                02
+              </span>
+              <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm">Background Noise</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              A ticking clock, scratching pencils, and a humming fan can be hard to filter out, leaving less attention for the teacher's voice.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-bold text-rose-700">
+            <span>Sound</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="relative bg-white rounded-2xl p-5 border-2 border-slate-200 hover:border-purple-400 transition-all shadow-sm hover:shadow-md flex flex-col justify-between group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-700 font-extrabold text-sm flex items-center justify-center mono-font border border-purple-200">
+                03
+              </span>
+              <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm">Racing Thoughts</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              ADHD can make it harder to stay on task and easier to be sidetracked. A stray thought can pull attention away just as you are holding a number in mind.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-bold text-purple-700">
+            <span>Attention</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="relative bg-white rounded-2xl p-5 border-2 border-slate-200 hover:border-red-500 transition-all shadow-sm hover:shadow-md flex flex-col justify-between group">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="w-8 h-8 rounded-xl bg-red-500/10 text-red-700 font-extrabold text-sm flex items-center justify-center mono-font border border-red-200">
+                04
+              </span>
+              <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+                <i data-lucide="flame" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm">Overload</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              When everything becomes too much, an autistic person may have a meltdown or withdraw. It isn't bad behavior. The shaking screen here is only a visual metaphor.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-bold text-red-700">
+            <span>Overwhelm</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INTERACTIVE CALL TO ACTION STRIP -->
+      <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900 text-white shadow-lg">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0 border border-purple-400/30">
+            <i data-lucide="target" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm">How to Experience the Simulator Below:</h3>
+            <p class="text-xs text-slate-300">
+              Try solving the 10 math quiz questions on the chalkboard while turning up the noise, glare, and racing thoughts.
+            </p>
+          </div>
+        </div>
+
+        <a href="#simulatorSection" class="px-5 py-2.5 rounded-xl bg-white text-slate-950 font-bold text-xs hover:bg-slate-100 transition shadow flex items-center gap-2 shrink-0">
+          <span>Start Interactive Simulation</span>
+          <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- MAIN SIMULATOR CONTAINER                   -->
+  <!-- ========================================== -->
+  <main id="simulatorSection" class="scroll-mt-20 flex-1 max-w-7xl w-full mx-auto px-5 py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+    <!-- LEFT 8 COLS: 1ST-PERSON VISUAL VIEWPORT -->
+    <div class="lg:col-span-8 flex flex-col gap-4">
+
+      <!-- POLISHED VECTOR-RENDERED CLASSROOM VIEWPORT -->
+      <div id="simStageViewport" class="relative overflow-hidden rounded-2xl border-2 border-slate-900 bg-slate-900 h-[660px] xl:h-[560px] flex flex-col justify-between shadow-2xl transition-all select-none">
+
+        <!-- 1. HIGH-PRECISION CLASSROOM VECTOR SCENE (SVG) -->
+        <svg id="classroomSvg" role="img" aria-label="A classroom with a chalkboard showing the current math question, a wall clock, a window, and a desk with a worksheet." class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="wallGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e8f3ee" />
+              <stop offset="50%" stop-color="#d1e7dd" />
+              <stop offset="100%" stop-color="#b8d9cb" />
+            </linearGradient>
+
+            <linearGradient id="wainscotGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8a4b24" />
+              <stop offset="25%" stop-color="#9e562a" />
+              <stop offset="100%" stop-color="#703c1b" />
+            </linearGradient>
+
+            <linearGradient id="woodBaseboard" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4a250e" />
+              <stop offset="100%" stop-color="#2e1406" />
+            </linearGradient>
+
+            <linearGradient id="chalkboardSlate" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#192823" />
+              <stop offset="35%" stop-color="#233831" />
+              <stop offset="70%" stop-color="#1c2d27" />
+              <stop offset="100%" stop-color="#14211c" />
+            </linearGradient>
+
+            <linearGradient id="oakFrame" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#c67d3b" />
+              <stop offset="20%" stop-color="#df9653" />
+              <stop offset="75%" stop-color="#a45f24" />
+              <stop offset="100%" stop-color="#7c4314" />
+            </linearGradient>
+
+            <linearGradient id="deskSurface" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f5a442" />
+              <stop offset="8%" stop-color="#e28f2d" />
+              <stop offset="50%" stop-color="#c9771c" />
+              <stop offset="100%" stop-color="#96520b" />
+            </linearGradient>
+
+            <filter id="tubeGlow" x="-20%" y="-40%" width="140%" height="180%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+              <feComponentTransfer in="blur" result="boost">
+                <feFuncA type="linear" slope="1.4" />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode in="boost" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            <filter id="realisticShadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#051410" flood-opacity="0.28" />
+            </filter>
+
+            <filter id="deskShadow" x="-15%" y="-15%" width="130%" height="130%">
+              <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#4a250e" flood-opacity="0.35" />
+            </filter>
+          </defs>
+
+          <!-- ROOM BACKGROUND WALL & CEILING -->
+          <rect x="0" y="0" width="1000" height="650" fill="url(#wallGradient)" />
+
+          <!-- WAINSCOTING LOWER WALL PANELING -->
+          <rect x="0" y="445" width="1000" height="40" fill="url(#wainscotGrad)" />
+          <line x1="0" y1="445" x2="1000" y2="445" stroke="#ffe4c4" stroke-width="2" opacity="0.4" />
+          <line x1="0" y1="485" x2="1000" y2="485" stroke="#4a250e" stroke-width="2" />
+          <g stroke="#613314" stroke-width="1.5" opacity="0.6">
+            <line x1="120" y1="445" x2="120" y2="485" />
+            <line x1="280" y1="445" x2="280" y2="485" />
+            <line x1="440" y1="445" x2="440" y2="485" />
+            <line x1="600" y1="445" x2="600" y2="485" />
+            <line x1="760" y1="445" x2="760" y2="485" />
+            <line x1="920" y1="445" x2="920" y2="485" />
+          </g>
+
+          <!-- CEILING WITH ACOUSTIC TILE GRIDS -->
+          <rect x="0" y="0" width="1000" height="110" fill="#f8fafc" />
+          <rect x="0" y="106" width="1000" height="6" fill="#64748b" />
+          <line x1="0" y1="106" x2="1000" y2="106" stroke="#ffffff" stroke-width="1" />
+          <g stroke="#cbd5e1" stroke-width="1.5">
+            <line x1="165" y1="0" x2="165" y2="106" />
+            <line x1="330" y1="0" x2="330" y2="106" />
+            <line x1="500" y1="0" x2="500" y2="106" />
+            <line x1="670" y1="0" x2="670" y2="106" />
+            <line x1="835" y1="0" x2="835" y2="106" />
+            <line x1="0" y1="53" x2="1000" y2="53" />
+          </g>
+
+          <!-- 2 INDUSTRIAL FLUORESCENT FIXTURES (CEILING) -->
+          <g id="fluorescentTubesGroup">
+            <rect x="180" y="24" width="280" height="36" rx="4" fill="#334155" stroke="#1e293b" stroke-width="2" />
+            <rect x="185" y="28" width="270" height="28" rx="3" fill="#cbd5e1" />
+            <rect class="tube-glowing" x="195" y="32" width="250" height="9" rx="4.5" fill="#ffffff" filter="url(#tubeGlow)" />
+            <rect class="tube-glowing" x="195" y="44" width="250" height="9" rx="4.5" fill="#ffffff" filter="url(#tubeGlow)" />
+
+            <rect x="540" y="24" width="280" height="36" rx="4" fill="#334155" stroke="#1e293b" stroke-width="2" />
+            <rect x="545" y="28" width="270" height="28" rx="3" fill="#cbd5e1" />
+            <rect class="tube-glowing" x="555" y="32" width="250" height="9" rx="4.5" fill="#ffffff" filter="url(#tubeGlow)" />
+            <rect class="tube-glowing" x="555" y="44" width="250" height="9" rx="4.5" fill="#ffffff" filter="url(#tubeGlow)" />
+          </g>
+
+          <!-- CLASSROOM WINDOW -->
+          <g transform="translate(30, 135)" filter="url(#realisticShadow)">
+            <defs>
+              <linearGradient id="winSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#A9CBDD" />
+                <stop offset="55%" stop-color="#D5E5EA" />
+                <stop offset="100%" stop-color="#EEF3EE" />
+              </linearGradient>
+              <linearGradient id="winFrame" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#D9DEE0" />
+                <stop offset="50%" stop-color="#AEB7BB" />
+                <stop offset="100%" stop-color="#8D989D" />
+              </linearGradient>
+              <linearGradient id="winBar" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#C4CBCE" />
+                <stop offset="50%" stop-color="#E4E8E9" />
+                <stop offset="100%" stop-color="#A5AFB3" />
+              </linearGradient>
+              <linearGradient id="winRail" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#E4E8E9" />
+                <stop offset="100%" stop-color="#A5AFB3" />
+              </linearGradient>
+              <linearGradient id="winBlind" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#DCD8CC" />
+                <stop offset="100%" stop-color="#F1EEE5" />
+              </linearGradient>
+              <linearGradient id="winSill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FAFBFA" />
+                <stop offset="100%" stop-color="#C9D0D0" />
+              </linearGradient>
+              <linearGradient id="winGlass" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.2" />
+                <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.02" />
+                <stop offset="100%" stop-color="#17303A" stop-opacity="0.1" />
+              </linearGradient>
+              <clipPath id="winClip"><rect x="14" y="14" width="152" height="258" /></clipPath>
+              <filter id="winBlurFar" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4" /></filter>
+              <filter id="winBlurMid" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.1" /></filter>
+              <filter id="winBlurNear" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="0.45" /></filter>
+            </defs>
+
+            <rect x="-4" y="-4" width="188" height="294" rx="2" fill="url(#winFrame)" stroke="#6F7A80" stroke-width="1" />
+            <rect x="6" y="6" width="168" height="274" fill="#8F9A9F" />
+
+            <g clip-path="url(#winClip)">
+              <rect x="14" y="14" width="152" height="258" fill="url(#winSky)" />
+              <g filter="url(#winBlurFar)" fill="#FFFFFF" opacity="0.8">
+                <ellipse cx="60" cy="74" rx="34" ry="8" />
+                <ellipse cx="84" cy="67" rx="22" ry="9" />
+                <ellipse cx="136" cy="106" rx="30" ry="6" />
+              </g>
+              <g filter="url(#winBlurFar)">
+                <ellipse cx="60.4" cy="173.7" rx="23.1" ry="12.7" fill="#B4CABC" opacity="1.00" />
+                <ellipse cx="21.8" cy="190.1" rx="26.7" ry="14.1" fill="#A9C2B4" opacity="1.00" />
+                <ellipse cx="78.9" cy="170.7" rx="15.3" ry="16.2" fill="#B4CABC" opacity="1.00" />
+                <ellipse cx="26.8" cy="176.5" rx="22.8" ry="21.5" fill="#B4CABC" opacity="1.00" />
+                <ellipse cx="104.4" cy="169.9" rx="17.1" ry="17.6" fill="#A9C2B4" opacity="1.00" />
+                <ellipse cx="54.7" cy="173.5" rx="15.6" ry="15.1" fill="#B4CABC" opacity="1.00" />
+                <ellipse cx="36.4" cy="190.1" rx="22.9" ry="15.7" fill="#B4CABC" opacity="1.00" />
+                <ellipse cx="125.6" cy="189.4" rx="22.7" ry="17.0" fill="#B4CABC" opacity="1.00" />
+                <ellipse cx="77.8" cy="179.9" rx="22.2" ry="16.5" fill="#9DB9AA" opacity="1.00" />
+                <ellipse cx="47.7" cy="174.8" rx="24.9" ry="12.8" fill="#9DB9AA" opacity="1.00" />
+                <ellipse cx="94.2" cy="201.3" rx="24.2" ry="14.9" fill="#A9C2B4" opacity="1.00" />
+                <ellipse cx="25.8" cy="183.9" rx="24.6" ry="13.5" fill="#9DB9AA" opacity="1.00" />
+                <ellipse cx="76.8" cy="204.6" rx="15.1" ry="17.6" fill="#9DB9AA" opacity="1.00" />
+                <ellipse cx="63.1" cy="181.3" rx="21.0" ry="20.0" fill="#A9C2B4" opacity="1.00" />
+                <ellipse cx="147.1" cy="203.9" rx="20.6" ry="18.6" fill="#A9C2B4" opacity="1.00" />
+                <ellipse cx="128.8" cy="179.8" rx="22.1" ry="18.8" fill="#9DB9AA" opacity="1.00" />
+              </g>
+              <rect x="14" y="232" width="152" height="40" fill="#93A977" />
+              <g filter="url(#winBlurMid)">
+                <ellipse cx="53.8" cy="212.2" rx="18.4" ry="9.2" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="65.7" cy="221.7" rx="16.4" ry="11.0" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="27.7" cy="206.4" rx="15.3" ry="16.8" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="33.9" cy="212.9" rx="14.1" ry="10.2" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="151.1" cy="207.7" rx="15.6" ry="12.2" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="166.9" cy="202.3" rx="12.9" ry="11.1" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="8.0" cy="230.9" rx="13.0" ry="11.5" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="76.4" cy="211.5" rx="17.2" ry="17.6" fill="#5F8768" opacity="1.00" />
+                <ellipse cx="150.3" cy="235.9" rx="18.2" ry="15.7" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="157.1" cy="228.8" rx="20.6" ry="16.2" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="72.9" cy="212.6" rx="16.3" ry="12.6" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="17.3" cy="204.8" rx="12.8" ry="12.1" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="23.2" cy="219.8" rx="16.9" ry="17.5" fill="#5F8768" opacity="1.00" />
+                <ellipse cx="10.3" cy="232.7" rx="17.8" ry="10.3" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="166.5" cy="221.3" rx="16.2" ry="10.0" fill="#7EA381" opacity="1.00" />
+                <ellipse cx="172.8" cy="215.6" rx="16.3" ry="9.8" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="131.9" cy="227.1" rx="16.3" ry="15.2" fill="#5F8768" opacity="1.00" />
+                <ellipse cx="9.9" cy="235.9" rx="16.8" ry="10.3" fill="#5F8768" opacity="1.00" />
+                <ellipse cx="159.6" cy="227.8" rx="14.3" ry="14.8" fill="#6E9575" opacity="1.00" />
+                <ellipse cx="123.0" cy="207.0" rx="15.0" ry="10.5" fill="#6E9575" opacity="1.00" />
+              </g>
+              <path d="M 28 272 C 31 238 30 214 36 186 L 45 186 C 44 216 47 242 52 272 Z" fill="#46382D" />
+              <path d="M 40 214 C 58 202 72 198 88 184 L 91 188 C 75 204 60 210 43 224 Z" fill="#46382D" />
+              <g filter="url(#winBlurNear)">
+                <ellipse cx="45.5" cy="247.7" rx="12.3" ry="9.8" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="66.9" cy="251.3" rx="16.4" ry="9.8" fill="#355E44" opacity="1.00" />
+                <ellipse cx="42.4" cy="243.3" rx="18.9" ry="14.3" fill="#4B7A57" opacity="1.00" />
+                <ellipse cx="24.2" cy="239.7" rx="18.6" ry="11.6" fill="#355E44" opacity="1.00" />
+                <ellipse cx="81.1" cy="263.9" rx="12.6" ry="9.8" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="40.7" cy="207.1" rx="13.8" ry="15.9" fill="#355E44" opacity="1.00" />
+                <ellipse cx="69.6" cy="220.1" rx="15.5" ry="14.4" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="69.1" cy="187.0" rx="12.9" ry="13.7" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="41.3" cy="192.4" rx="16.9" ry="10.7" fill="#355E44" opacity="1.00" />
+                <ellipse cx="34.9" cy="212.9" rx="18.5" ry="13.8" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="81.5" cy="178.5" rx="14.9" ry="11.7" fill="#355E44" opacity="1.00" />
+                <ellipse cx="15.4" cy="252.0" rx="18.8" ry="13.3" fill="#4B7A57" opacity="1.00" />
+                <ellipse cx="16.2" cy="226.4" rx="9.2" ry="14.4" fill="#355E44" opacity="1.00" />
+                <ellipse cx="54.7" cy="224.4" rx="18.3" ry="11.5" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="68.4" cy="195.4" rx="11.5" ry="10.3" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="63.6" cy="206.0" rx="14.4" ry="14.7" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="75.0" cy="208.5" rx="13.6" ry="12.7" fill="#355E44" opacity="1.00" />
+                <ellipse cx="36.8" cy="260.4" rx="14.0" ry="12.3" fill="#355E44" opacity="1.00" />
+                <ellipse cx="43.8" cy="256.3" rx="16.8" ry="12.9" fill="#3F6A4C" opacity="1.00" />
+                <ellipse cx="17.4" cy="219.6" rx="16.3" ry="12.5" fill="#4B7A57" opacity="1.00" />
+                <ellipse cx="57.2" cy="224.8" rx="13.8" ry="14.2" fill="#355E44" opacity="1.00" />
+                <ellipse cx="8.4" cy="193.6" rx="9.4" ry="8.8" fill="#4B7A57" opacity="1.00" />
+                <ellipse cx="47.8" cy="245.9" rx="18.1" ry="11.5" fill="#355E44" opacity="1.00" />
+                <ellipse cx="79.9" cy="231.8" rx="11.0" ry="10.2" fill="#355E44" opacity="1.00" />
+                <ellipse cx="45.6" cy="220.0" rx="18.4" ry="13.6" fill="#4B7A57" opacity="1.00" />
+                <ellipse cx="76.0" cy="258.1" rx="11.0" ry="11.6" fill="#4B7A57" opacity="1.00" />
+                <ellipse cx="15.5" cy="211.8" rx="2.8" ry="2.7" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="22.6" cy="199.3" rx="3.0" ry="4.3" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="56.2" cy="205.0" rx="3.5" ry="2.4" fill="#92B583" opacity="0.80" />
+                <ellipse cx="23.1" cy="257.7" rx="4.1" ry="3.5" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="70.9" cy="186.5" rx="4.2" ry="3.5" fill="#92B583" opacity="0.80" />
+                <ellipse cx="38.9" cy="204.1" rx="2.9" ry="3.1" fill="#92B583" opacity="0.80" />
+                <ellipse cx="49.2" cy="211.6" rx="2.6" ry="3.0" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="29.0" cy="258.5" rx="3.0" ry="4.8" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="81.8" cy="181.4" rx="3.6" ry="2.1" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="27.1" cy="183.7" rx="4.2" ry="4.7" fill="#92B583" opacity="0.80" />
+                <ellipse cx="37.7" cy="220.3" rx="4.6" ry="3.5" fill="#92B583" opacity="0.80" />
+                <ellipse cx="13.0" cy="177.2" rx="5.3" ry="3.3" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="27.0" cy="173.5" rx="2.9" ry="2.8" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="72.8" cy="178.0" rx="6.0" ry="3.4" fill="#92B583" opacity="0.80" />
+                <ellipse cx="83.6" cy="209.6" rx="6.2" ry="3.9" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="47.1" cy="193.5" rx="2.9" ry="2.5" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="20.1" cy="255.9" rx="5.0" ry="3.6" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="28.6" cy="217.0" rx="3.2" ry="3.0" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="83.6" cy="175.3" rx="2.6" ry="3.5" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="46.1" cy="194.1" rx="4.3" ry="4.0" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="39.7" cy="216.6" rx="5.8" ry="3.2" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="30.0" cy="191.4" rx="3.4" ry="2.6" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="62.8" cy="184.6" rx="6.5" ry="4.9" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="7.1" cy="228.3" rx="6.0" ry="3.3" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="12.6" cy="247.7" rx="6.0" ry="4.0" fill="#92B583" opacity="0.80" />
+                <ellipse cx="52.7" cy="234.3" rx="2.7" ry="2.6" fill="#92B583" opacity="0.80" />
+                <ellipse cx="40.8" cy="195.7" rx="6.3" ry="4.9" fill="#6C9767" opacity="0.80" />
+                <ellipse cx="31.2" cy="175.1" rx="6.0" ry="2.7" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="6.1" cy="206.3" rx="4.4" ry="3.5" fill="#7EA474" opacity="0.80" />
+                <ellipse cx="25.4" cy="241.9" rx="2.9" ry="4.5" fill="#7EA474" opacity="0.80" />
+              </g>
+              <defs>
+                <radialGradient id="birdBody" cx="62%" cy="30%" r="78%">
+                  <stop offset="0%" stop-color="#F0483B" />
+                  <stop offset="58%" stop-color="#D42A2A" />
+                  <stop offset="100%" stop-color="#8F1A20" />
+                </radialGradient>
+                <linearGradient id="birdWing" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#BE2428" />
+                  <stop offset="100%" stop-color="#6C151B" />
+                </linearGradient>
+                <linearGradient id="birdBeak" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#FFB15A" />
+                  <stop offset="100%" stop-color="#E56F27" />
+                </linearGradient>
+              </defs>
+
+              <!-- Branch -->
+              <path d="M 168 165 C 150 163 126 164 97 171 L 97 175 C 126 169 150 169 168 172 Z" fill="#4A382B" />
+              <path d="M 140 165 C 146 158 151 155 158 153" stroke="#4A382B" stroke-width="1.5" fill="none" stroke-linecap="round" />
+              <path d="M 158 153 C 163 149 166 151 166 156 C 162 158 159 157 158 153 Z" fill="#5C8A5F" />
+              <path d="M 150 157 C 153 151 158 150 160 147 C 161 153 156 158 150 157 Z" fill="#6E9B69" />
+              <path d="M 108 169 C 104 174 104 176 106 180" stroke="#4A382B" stroke-width="1.2" fill="none" />
+
+              <!-- Cardinal -->
+              <g transform="translate(-11, 0)">
+                <path d="M 123 141 L 99 150 L 101 155 L 124 148 Z" fill="#6C151B" />
+                <path d="M 124 144 L 100 157 L 104 161 L 127 151 Z" fill="#8F1A20" />
+                <path d="M 126 147 L 106 163 L 110 166 L 130 153 Z" fill="#B02226" />
+                <path d="M 136 155 L 136 165 M 144 154 L 144 165" stroke="#7A4B36" stroke-width="1.5" stroke-linecap="round" />
+                <path d="M 132 166 H 140 M 140 166 H 148" stroke="#7A4B36" stroke-width="1.5" stroke-linecap="round" />
+                <path d="M 120 143 C 124 128 142 119 155 125 C 163 134 158 151 145 157 C 134 161 123 154 120 143 Z" fill="url(#birdBody)" />
+                <path d="M 142 153 C 150 150 155 143 156 136 C 160 143 156 152 147 156 Z" fill="#F46A52" opacity="0.65" />
+                <path d="M 122 142 C 128 131 143 131 149 139 C 143 149 130 152 113 150 C 117 148 120 145 122 142 Z" fill="url(#birdWing)" />
+                <path d="M 127 141 C 133 139 140 139 146 140 M 124 145 C 131 145 138 144 143 143 M 121 148 C 128 149 134 148 139 146" stroke="#4F0F15" stroke-width="0.9" fill="none" stroke-linecap="round" />
+                <g class="bird-flutter">
+                  <path d="M 147 113 L 141 92 L 149 100 L 151 95 L 159 110 Z" fill="#C92428" />
+                  <path d="M 148 112 L 144 98 L 154 108 Z" fill="#E8403A" />
+                  <circle cx="154" cy="120" r="11.5" fill="#DC2F2D" />
+                  <path d="M 158 112 C 165 113 168 120 165 127 C 160 130 154 126 153 120 C 153 116 155 113 158 112 Z" fill="#1C1818" />
+                  <path d="M 163 115 L 174 120.5 L 163 123 Z" fill="url(#birdBeak)" />
+                  <path d="M 163 123 L 171 121.5 L 163 127 Z" fill="#C95B20" />
+                  <circle cx="158" cy="117.5" r="2.7" fill="#0D0B0B" stroke="#6A2A28" stroke-width="0.6" />
+                  <circle cx="159" cy="116.5" r="0.85" fill="#FFFFFF" />
+                </g>
+              </g>
+              <path d="M 12 272 L 72 14 L 96 14 L 36 272 Z" fill="#FFFFFF" opacity="0.1" />
+              <path d="M 108 272 L 166 34 L 166 62 L 120 272 Z" fill="#FFFFFF" opacity="0.08" />
+              <rect x="14" y="14" width="152" height="258" fill="url(#winGlass)" />
+            </g>
+
+            <rect x="14" y="14" width="152" height="30" fill="url(#winBlind)" />
+            <g stroke="#C7C2B5" stroke-width="0.7">
+              <line x1="14" y1="20" x2="166" y2="20" />
+              <line x1="14" y1="26" x2="166" y2="26" />
+              <line x1="14" y1="32" x2="166" y2="32" />
+              <line x1="14" y1="38" x2="166" y2="38" />
+            </g>
+            <rect x="14" y="43" width="152" height="2.5" fill="#B9B4A7" />
+            <rect x="14" y="45.5" width="152" height="5" fill="#17303A" opacity="0.08" />
+            <path d="M 150 45 V 70" stroke="#A9A497" stroke-width="0.8" />
+            <circle cx="150" cy="72" r="1.7" fill="#A9A497" />
+
+            <rect x="86" y="10" width="8" height="266" fill="url(#winBar)" stroke="#8F9A9F" stroke-width="0.5" />
+            <rect x="10" y="176" width="160" height="7" fill="url(#winRail)" stroke="#8F9A9F" stroke-width="0.5" />
+            <rect x="10" y="10" width="160" height="266" fill="none" stroke="url(#winRail)" stroke-width="8" />
+            <rect x="14" y="14" width="152" height="258" fill="none" stroke="#6F7A80" stroke-width="0.8" />
+            <rect x="74" y="172" width="10" height="3" rx="1.2" fill="#6F7A80" />
+
+            <rect x="-10" y="279" width="200" height="9" rx="1.5" fill="url(#winSill)" stroke="#AEB7B8" stroke-width="0.7" />
+            <rect x="-6" y="288" width="192" height="3" fill="#17303A" opacity="0.14" />
+          </g>
+
+          <!-- THE LARGE WOOD-FRAMED CHALKBOARD (DYNAMIC CHALK ART TARGET) -->
+          <g transform="translate(245, 125)" filter="url(#realisticShadow)">
+            <rect x="0" y="0" width="510" height="300" rx="7" fill="url(#oakFrame)" stroke="#3a1d08" stroke-width="2.5" />
+            <rect x="8" y="8" width="494" height="284" rx="4" fill="none" stroke="#ffe0b2" stroke-width="1.5" opacity="0.6" />
+
+            <rect x="14" y="14" width="482" height="272" rx="3" fill="url(#chalkboardSlate)" />
+
+            <path d="M 30 45 Q 160 30 310 48 Q 450 40 480 60" stroke="#ffffff" stroke-width="18" opacity="0.04" fill="none" stroke-linecap="round" />
+            <path d="M 40 180 Q 230 160 460 190" stroke="#ffffff" stroke-width="26" opacity="0.035" fill="none" stroke-linecap="round" />
+            <path d="M 60 110 Q 180 130 380 100" stroke="#ffffff" stroke-width="22" opacity="0.03" fill="none" stroke-linecap="round" />
+
+            <!-- Chalk Tray -->
+            <rect x="12" y="282" width="486" height="14" rx="2" fill="#8d5b28" stroke="#4e2b0c" stroke-width="1.5" />
+            <line x1="12" y1="282" x2="498" y2="282" stroke="#ffe0b2" stroke-width="1" opacity="0.5" />
+            
+            <rect x="160" y="285" width="26" height="5.5" rx="2" fill="#ffffff" />
+            <rect x="195" y="285" width="22" height="5.5" rx="2" fill="#fef08a" />
+            <rect x="225" y="286" width="14" height="5" rx="2" fill="#93c5fd" />
+            <rect x="360" y="283" width="50" height="9" rx="2" fill="#292524" />
+            <rect x="360" y="283" width="50" height="4" rx="1.5" fill="#a87132" />
+
+            <!-- THE QUESTION APPEARS ONLY HERE -->
+            <g filter="drop-shadow(0 0 1px rgba(254, 240, 138, 0.4))">
+              <text id="boardMathProblem" x="255" y="178" class="chalk-font" font-weight="700" font-size="96" fill="#fef08a" text-anchor="middle">
+                16 + 27 = ?
+              </text>
+            </g>
+          </g>
+
+          <!-- MINIMAL WALL CLOCK -->
+          <g transform="translate(797, 149) scale(1.22)" filter="url(#realisticShadow)">
+            <circle cx="30" cy="30" r="43.5" fill="#FBFBF9" stroke="#20282D" stroke-width="2" />
+            <g stroke="#20282D" stroke-width="1.3" stroke-linecap="round">
+              <line x1="30.00" y1="-3.00" x2="30.00" y2="-8.00" />
+              <line x1="47.50" y1="-0.31" x2="49.00" y2="-2.91" />
+              <line x1="60.31" y1="12.50" x2="62.91" y2="11.00" />
+              <line x1="63.00" y1="30.00" x2="68.00" y2="30.00" />
+              <line x1="60.31" y1="47.50" x2="62.91" y2="49.00" />
+              <line x1="47.50" y1="60.31" x2="49.00" y2="62.91" />
+              <line x1="30.00" y1="63.00" x2="30.00" y2="68.00" />
+              <line x1="12.50" y1="60.31" x2="11.00" y2="62.91" />
+              <line x1="-0.31" y1="47.50" x2="-2.91" y2="49.00" />
+              <line x1="-3.00" y1="30.00" x2="-8.00" y2="30.00" />
+              <line x1="-0.31" y1="12.50" x2="-2.91" y2="11.00" />
+              <line x1="12.50" y1="-0.31" x2="11.00" y2="-2.91" />
+            </g>
+            <g stroke="#20282D" stroke-linecap="round">
+              <line id="clockHourHand" x1="30" y1="30" x2="30" y2="13" stroke-width="2.2" transform="rotate(305 30 30)" />
+              <line id="clockMinuteHand" x1="30" y1="30" x2="30" y2="5" stroke-width="1.4" transform="rotate(60 30 30)" />
+            </g>
+            <line id="clockSecondHand" x1="30" y1="36" x2="30" y2="3" stroke="#B8323F" stroke-width="0.7" stroke-linecap="round" />
+            <circle cx="30" cy="30" r="2" fill="#20282D" />
+            <circle cx="30" cy="30" r="0.8" fill="#B8323F" />
+          </g>
+
+          <!-- FOREGROUND: STUDENT DESK & DYNAMIC WORKSHEET -->
+          <g transform="translate(0, 475)">
+            <polygon points="0,0 1000,0 1000,175 0,175" fill="url(#deskSurface)" />
+            <line x1="0" y1="1" x2="1000" y2="1" stroke="#fef08a" stroke-width="2.5" opacity="0.75" />
+            <line x1="0" y1="4" x2="1000" y2="4" stroke="#7c2d12" stroke-width="1.5" opacity="0.6" />
+
+            <!-- Paper Sheet -->
+            <g transform="translate(315, 12)" filter="url(#realisticShadow)">
+              <rect x="0" y="0" width="370" height="155" rx="3" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <line x1="42" y1="0" x2="42" y2="155" stroke="#fca5a5" stroke-width="1.2" opacity="0.8" />
+
+              <g stroke="#e2e8f0" stroke-width="1">
+                <line x1="42" y1="36" x2="365" y2="36" />
+                <line x1="42" y1="64" x2="365" y2="64" />
+                <line x1="42" y1="92" x2="365" y2="92" />
+                <line x1="42" y1="120" x2="365" y2="120" />
+                <line x1="42" y1="148" x2="365" y2="148" />
+              </g>
+
+              <text x="50" y="26" font-family="'Space Grotesk', system-ui, sans-serif" font-size="13" font-weight="700" fill="#0f172a">
+                WEEKLY MATH QUIZ
+              </text>
+              <text id="paperQuizHeader" x="235" y="26" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="12" font-weight="600" fill="#475569">
+                Question 1 of 10
+              </text>
+
+              <text id="paperStudentName" x="50" y="55" font-family="'Caveat', cursive" font-size="21" font-weight="700" fill="#1e3a8a">Name: Alex Morgan</text>
+
+              <text x="50" y="85" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="12" font-weight="600" fill="#64748b">
+                Work out each answer in your head.
+              </text>
+            </g>
+
+            <!-- Digital desk timer, clear of the worksheet -->
+            <g transform="translate(78, 20)" filter="url(#deskShadow)">
+              <rect x="8" y="42" width="14" height="4" rx="1.5" fill="#11171A" />
+              <rect x="70" y="42" width="14" height="4" rx="1.5" fill="#11171A" />
+              <rect x="0" y="0" width="92" height="44" rx="6" fill="#20282D" stroke="#3D464B" stroke-width="1" />
+              <rect x="7" y="7" width="78" height="30" rx="3" fill="#0B1012" />
+              <text id="deskDigitalTimer" x="46" y="30" font-family="'JetBrains Mono', monospace" font-size="21" font-weight="800" fill="#f43f5e" text-anchor="middle">10s</text>
+            </g>
+
+            <!-- Pencil -->
+            <g transform="translate(710, 46) rotate(6)" filter="url(#deskShadow)">
+              <rect x="0" y="0" width="115" height="4" fill="#3b82f6" />
+              <rect x="0" y="4" width="115" height="4" fill="#2563eb" />
+              <rect x="0" y="8" width="115" height="3" fill="#1d4ed8" />
+              <polygon points="115,0 128,5.5 115,11" fill="#fde68a" stroke="#d97706" stroke-width="0.5" />
+              <polygon points="124,4 128,5.5 124,7" fill="#1f2937" />
+              <rect x="-8" y="0" width="8" height="11" fill="#eab308" stroke="#ca8a04" stroke-width="0.5" />
+              <line x1="-5" y1="0" x2="-5" y2="11" stroke="#a16207" stroke-width="0.8" />
+              <rect x="-18" y="0" width="10" height="11" rx="2" fill="#f472b6" stroke="#db2777" stroke-width="0.5" />
+            </g>
+
+            <!-- Eraser -->
+            <g transform="translate(225, 42) rotate(-8)" filter="url(#deskShadow)">
+              <rect x="0" y="0" width="46" height="22" rx="3" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="0" width="26" height="22" rx="2" fill="#1e40af" />
+              <text x="3" y="15" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="800" fill="#ffffff">DUST</text>
+            </g>
+          </g>
+        </svg>
+
+        <!-- 2. GLARE OVERLAY -->
+        <div id="glareFilterOverlay" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity z-10 bg-amber-200/30 mix-blend-color-burn"></div>
+
+        <!-- 3. TUNNEL VISION & MELTDOWN VIGNETTE OVERLAY -->
+        <div id="tunnelVisionOverlay" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity z-20 bg-slate-950" style="mask-image: radial-gradient(circle 135px at center, transparent 20%, black 95%); -webkit-mask-image: radial-gradient(circle 135px at center, transparent 20%, black 95%);"></div>
+        <div id="meltdownPulseOverlay" class="absolute inset-0 pointer-events-none opacity-0 z-[25] transition-opacity"></div>
+
+        <!-- 4. ADHD INTRUSIVE THOUGHT FLOODING LAYER -->
+        <div id="thoughtCloudLayer" aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden z-30"></div>
+
+        <!-- 5. QUIZ START OVERLAY (SHOWN BEFORE STARTING) -->
+        <div id="quizStartOverlay" class="absolute inset-0 z-[45] bg-slate-950/75 backdrop-blur-sm flex flex-col items-center p-4 sm:p-6 text-center text-white overflow-y-auto transition-opacity duration-300">
+          <div class="my-auto max-w-md bg-white text-slate-900 rounded-3xl p-6 sm:p-7 shadow-2xl border-2 border-slate-200 flex flex-col items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-sm">
+              <i data-lucide="timer" class="w-8 h-8"></i>
+            </div>
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-extrabold uppercase tracking-wider mono-font">10 Questions &bull; Timed</span>
+              <h3 class="text-xl sm:text-2xl font-extrabold heading-font text-slate-950 mt-1.5">Sensory Working Memory Quiz</h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                You get <strong>10 seconds per question</strong> by default to solve mental arithmetic while glare, background noise, and racing thoughts compete for your attention.
+              </p>
+              <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                Sound is off. If you turn it on at the top of the page, keep your volume low: it includes a hum, static, bird song, and a high-pitched tone.
+              </p>
+            </div>
+            <div class="w-full flex items-center justify-center gap-2 text-sm">
+              <label for="studentNameInput" class="font-bold text-slate-800">Your name</label>
+              <input id="studentNameInput" type="text" maxlength="24" autocomplete="given-name" placeholder="Optional" class="w-40 rounded-lg border border-slate-300 bg-white px-2 py-1 font-bold text-slate-900" />
+            </div>
+            <div class="w-full grid gap-1 text-sm">
+              <div class="flex items-center justify-center gap-2">
+                <label for="gradeSelect" class="font-bold text-slate-800">Grade level</label>
+                <select id="gradeSelect" required aria-describedby="gradeError" class="rounded-lg border border-slate-300 bg-white px-2 py-1 font-bold text-slate-900">
+                  <option value="" selected>Choose a grade</option>
+                  <option value="1-2">Grades 1–2</option>
+                  <option value="3-4">Grades 3–4</option>
+                  <option value="5-6">Grades 5–6</option>
+                  <option value="7-8">Grades 7–8</option>
+                  <option value="9-10">Grades 9–10</option>
+                </select>
+              </div>
+              <p id="gradeError" role="alert" class="hidden text-xs font-bold text-rose-700">Choose a grade to start the quiz.</p>
+            </div>
+            <div class="w-full flex items-center justify-center gap-2 text-sm">
+              <label for="timeLimitSelect" class="font-bold text-slate-800">Time per question</label>
+              <select id="timeLimitSelect" class="rounded-lg border border-slate-300 bg-white px-2 py-1 font-bold text-slate-900">
+                <option value="10" selected>10 seconds</option>
+                <option value="20">20 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="0">No time limit</option>
+              </select>
+            </div>
+            <div class="w-full flex items-center justify-center gap-3 pt-2 border-t border-slate-100">
+              <button onclick="beginSelectedQuiz()" class="w-full py-3 px-5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm shadow-lg hover:shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                <i data-lucide="play" class="w-4 h-4"></i>
+                <span>Start Quiz from Beginning (Q1)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. RESULTS SCREEN (SHOWN AFTER FINISHING) -->
+        <div id="quizResultsOverlay" class="hidden absolute inset-0 z-[45] bg-slate-950/75 backdrop-blur-sm flex flex-col items-center p-4 text-center overflow-y-auto">
+          <div class="my-auto w-full max-w-md bg-white text-slate-900 rounded-3xl p-5 sm:p-6 shadow-2xl border-2 border-slate-200 flex flex-col gap-3">
+            <h3 id="resultsHeading" tabindex="-1" class="text-xl sm:text-2xl font-extrabold heading-font text-slate-950 outline-none">You scored 0 out of 10</h3>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-2">
+                <div id="resultCorrect" class="text-lg font-extrabold mono-font text-emerald-800">0</div>
+                <div class="text-xs text-emerald-800">Correct</div>
+              </div>
+              <div class="rounded-xl bg-rose-50 border border-rose-200 p-2">
+                <div id="resultWrong" class="text-lg font-extrabold mono-font text-rose-800">0</div>
+                <div class="text-xs text-rose-800">Incorrect</div>
+              </div>
+              <div class="rounded-xl bg-amber-50 border border-amber-200 p-2">
+                <div id="resultMissed" class="text-lg font-extrabold mono-font text-amber-800">0</div>
+                <div class="text-xs text-amber-800">Missed</div>
+              </div>
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              Your highest sensory load was <strong id="resultPeak">0%</strong>. The room has gone quiet now, and you get to leave it behind. Many children go back to it every day, so the changes around them matter.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <a href="#whatHelps" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-sm transition">See what helps</a>
+              <button onclick="startQuizFromBeginning()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold text-sm transition">Try again</button>
+              <button onclick="changeGrade()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold text-sm transition">Change grade</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOP HUD: DYNAMIC SENSORY LOAD METER & QUIZ PROGRESS -->
+        <div class="relative z-40 m-3 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md flex flex-col xl:flex-row xl:items-center justify-between gap-2 xl:gap-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2 text-xs font-bold mb-1">
+              <span class="flex items-center gap-1.5 text-slate-800">
+                <i data-lucide="gauge" class="w-4 h-4 text-rose-600"></i>
+                Sensory Load (illustrative):
+              </span>
+              <span id="loadBadge" class="whitespace-nowrap mono-font px-2 py-0.5 rounded font-bold text-[11px] bg-slate-100 text-slate-800">
+                47% (RISING)
+              </span>
+            </div>
+            <div id="loadMeter" role="progressbar" aria-label="Sensory load, illustrative" aria-valuemin="0" aria-valuemax="100" aria-valuenow="47" class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden p-0.5">
+              <div id="loadProgressBar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-600 rounded-full transition-all duration-200" style="width: 47%;"></div>
+            </div>
+          </div>
+
+          <!-- Quiz Score, Circular Clock & Progress Indicator -->
+          <div class="flex flex-wrap items-center gap-2 xl:gap-3 xl:border-l border-slate-200 xl:pl-4">
+            <!-- 10s Question Countdown Digital Clock & Dial -->
+            <div class="flex items-center gap-2 bg-slate-900 text-white px-2.5 py-1 rounded-xl border border-slate-700 shadow-md">
+              <div class="relative w-8 h-8 flex items-center justify-center">
+                <svg class="w-8 h-8 -rotate-90" viewBox="0 0 36 36">
+                  <!-- Clock Background Ring -->
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#334155" stroke-width="3"></circle>
+                  <!-- Animated Clock Countdown Ring -->
+                  <circle id="quizClockRing" cx="18" cy="18" r="14" fill="none" stroke="#f43f5e" stroke-width="3" stroke-dasharray="87.96" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-300 ease-linear"></circle>
+                </svg>
+                <span id="quizClockMiniDisplay" class="absolute text-[11px] font-black text-white mono-font">10</span>
+              </div>
+              <div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Timer</div>
+                <div id="quizTimerDisplay" class="whitespace-nowrap text-xs font-black text-rose-400 mono-font leading-tight">10s</div>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Score</div>
+              <div id="scoreCounter" class="whitespace-nowrap text-xs font-bold text-slate-900 mono-font">0 / 10</div>
+            </div>
+            <div class="px-2.5 py-1 rounded-lg bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold mono-font" id="quizPillBadge">
+              Q1/10
+            </div>
+
+            <!-- Start / Restart Quiz Button -->
+            <button id="startQuizBtn" onclick="toggleQuizActive()" class="whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-sm hover:shadow transition">
+              <i data-lucide="play" id="startQuizIcon" class="w-3.5 h-3.5"></i>
+              <span id="startQuizText">Start Quiz</span>
+            </button>
+
+            <!-- Calm control stays reachable in fullscreen -->
+            <button onclick="applyPreset('calm')" title="Calm everything down" aria-label="Calm everything down" class="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 transition">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            </button>
+
+            <!-- Viewport Fullscreen Toggle Button -->
+            <button id="viewportFsBtn" onclick="toggleFullscreen()" title="Toggle Fullscreen Focus" aria-label="Toggle fullscreen" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 transition">
+              <i data-lucide="maximize-2" id="viewportFsIcon" class="w-4 h-4 text-slate-700"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- BOTTOM HUD: MULTI-QUIZ INTERACTIVE BAR WITH NEXT/PREV CONTROLS -->
+        <div class="relative z-40 m-3 p-3.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-lg flex flex-wrap items-center justify-center gap-3">
+          <div class="sr-only" aria-live="polite">
+            <div class="flex flex-wrap items-center justify-center xl:justify-start gap-2 mb-0.5">
+              <span id="hudQuizNumber" class="font-bold text-rose-600 uppercase tracking-wider text-[11px]">Question 1 of 10</span>
+              <span id="quizFeedbackBadge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded"></span>
+            </div>
+            <p id="hudQuizPrompt" class="sr-only">What is 16 + 27?</p>
+            <p id="hudSolution" class="hidden text-xs text-slate-600 mt-0.5"></p>
+          </div>
+
+          <!-- Multiple Choice Options -->
+          <div id="optionsContainer" class="grid grid-cols-4 gap-2">
+            <!-- Injected dynamically -->
+          </div>
+
+          <!-- Next / Previous Controls -->
+          <div class="flex items-center gap-2 sm:border-l border-slate-200 sm:pl-3">
+            <button id="prevBtn" onclick="prevQuiz()" class="px-3 py-1.5 rounded-lg border border-slate-300 font-bold text-xs hover:bg-slate-100 disabled:opacity-40 transition flex items-center gap-1">
+              <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+              <span>Prev</span>
+            </button>
+            <button id="nextBtn" onclick="nextQuiz()" class="px-3.5 py-1.5 rounded-lg bg-slate-950 text-white font-bold text-xs hover:bg-slate-800 disabled:opacity-40 transition flex items-center gap-1 shadow">
+              <span>Next</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- STATUS & EXPLANATION BANNER -->
+      <div id="meltdownAlertBanner" role="status" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-700 leading-relaxed transition-all">
+        <strong class="text-slate-950 font-bold block mb-0.5 text-sm" id="statusHeader">Simulation: Load Rising</strong>
+        <span id="statusDesc">
+          Glare and background noise are making it harder to concentrate.
+        </span>
+      </div>
+
+    </div>
+
+    <!-- RIGHT 4 COLS: DEDICATED DISTORTION CONTROLS -->
+    <div class="lg:col-span-4 flex flex-col gap-4">
+
+      <!-- DISTORTIONS CONTROL PANEL -->
+      <div class="p-5 rounded-2xl border-2 border-slate-200 bg-white shadow-md flex flex-col gap-4">
+        <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
+          <h2 class="font-bold text-sm text-slate-950 flex items-center gap-2">
+            <i data-lucide="sliders" class="w-4 h-4 text-rose-600"></i>
+            Active Distortion Dials
+          </h2>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 mono-font">LIVE</span>
+        </div>
+
+        <!-- 1. Fluorescent Flicker & Glare Dial -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <label for="lightInput" class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-500"></i>
+              1. Fluorescent Glare
+            </label>
+            <span id="lightValLabel" class="text-amber-700 font-bold mono-font">40%</span>
+          </div>
+          <input type="range" id="lightInput" min="0" max="100" value="40" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-amber-500" />
+          <p class="text-xs text-slate-500">Controls glare strength. Shown as a slow effect, with no flashing, for safety.</p>
+        </div>
+
+        <!-- 2. Auditory Bleed (Web Audio API Synthesizer) -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <label for="soundInput" class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5 text-rose-600"></i>
+              2. Background Noise
+            </label>
+            <span id="soundValLabel" class="text-rose-700 font-bold mono-font">50%</span>
+          </div>
+          <input type="range" id="soundInput" min="0" max="100" value="50" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-rose-600" />
+          <p class="text-xs text-slate-500">Controls the hum, static, clock ticking, and bird song when sound is on.</p>
+        </div>
+
+        <!-- 3. ADHD Intrusive Thought Flooding -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <label for="adhdInput" class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-purple-600"></i>
+              3. Racing Thoughts
+            </label>
+            <span id="adhdValLabel" class="text-purple-700 font-bold mono-font">60%</span>
+          </div>
+          <input type="range" id="adhdInput" min="0" max="100" value="60" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-purple-600" />
+          <p class="text-xs text-slate-500">Controls how often thoughts pop up and how often they knock a number out of mind.</p>
+        </div>
+
+        <!-- 4. Tactile & Physical Restlessness Dial -->
+        <div class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <label for="tactileInput" class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i data-lucide="tag" class="w-3.5 h-3.5 text-slate-700"></i>
+              4. Restlessness & Touch
+            </label>
+            <span id="tactileValLabel" class="text-slate-800 font-bold mono-font">30%</span>
+          </div>
+          <input type="range" id="tactileInput" min="0" max="100" value="30" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-slate-900" />
+          <p class="text-xs text-slate-500">Answer buttons get harder to keep still, and body-focused thoughts appear more often.</p>
+        </div>
+
+        <!-- PRESET EXPERIENCES -->
+        <div class="pt-2 border-t border-slate-100">
+          <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">1-Click Presets</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="applyPreset('meltdown')" class="p-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-900 font-bold text-xs text-left transition flex items-center gap-2">
+              <span class="text-base">🚨</span>
+              <div>
+                <div class="leading-tight">Overload</div>
+                <div class="text-[11px] font-normal text-rose-700">Shaking, narrow view</div>
+              </div>
+            </button>
+            <button onclick="applyPreset('adhd_storm')" class="p-2.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-900 font-bold text-xs text-left transition flex items-center gap-2">
+              <span class="text-base">⚡</span>
+              <div>
+                <div class="leading-tight">Thought Storm</div>
+                <div class="text-[11px] font-normal text-purple-700">Numbers slip away</div>
+              </div>
+            </button>
+            <button onclick="applyPreset('flicker_headache')" class="p-2.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-xs text-left transition flex items-center gap-2">
+              <span class="text-base">💡</span>
+              <div>
+                <div class="leading-tight">Glare Spike</div>
+                <div class="text-[11px] font-normal text-amber-700">Bright, harsh light</div>
+              </div>
+            </button>
+            <button onclick="applyPreset('calm')" class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-xs text-left transition flex items-center gap-2">
+              <span class="text-base">🌿</span>
+              <div>
+                <div class="leading-tight">Calm Safe Space</div>
+                <div class="text-[11px] font-normal text-emerald-700">Everything turned down</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- THE 4 CORE DISTORTIONS EXPLAINED -->
+      <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 text-xs text-slate-600 space-y-2.5">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-purple-600"></i>
+          What the Effects Represent
+        </h3>
+        <div>
+          <strong class="text-slate-800">Glare:</strong>
+          Lighting can be uncomfortable or distracting for some people. This effect is deliberately slow and never flashes.
+        </div>
+        <div>
+          <strong class="text-slate-800">Noise:</strong>
+          Everyday sounds can be hard to separate from the sound you need to hear.
+        </div>
+        <div>
+          <strong class="text-slate-800">Racing thoughts:</strong>
+          ADHD is linked with distractibility. Dopamine appears to be involved, but researchers are still working out how.
+        </div>
+        <div>
+          <strong class="text-slate-800">Overload:</strong>
+          The meter and its levels are invented for this demonstration. They don't measure anything in a real person.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- WHAT HELPS -->
+  <section id="whatHelps" class="scroll-mt-24 border-t border-slate-200 bg-slate-50 py-10 px-5">
+    <div class="max-w-7xl mx-auto flex flex-col gap-6">
+      <div class="max-w-3xl space-y-2">
+        <h2 class="text-2xl sm:text-3xl font-extrabold heading-font tracking-tight text-slate-950">What Actually Helps</h2>
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+          Small changes to the room and the routine can make school more manageable. No single list fits every child, so treat these as starting points.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <article class="bg-white rounded-2xl p-5 border-2 border-slate-200">
+          <h3 class="font-bold text-slate-900 text-base">Ask the child first</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mt-1.5">Children and families can often say what helps most. Needs differ from person to person and can change over time.</p>
+        </article>
+        <article class="bg-white rounded-2xl p-5 border-2 border-slate-200">
+          <h3 class="font-bold text-slate-900 text-base">Reduce noise and glare</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mt-1.5">Limit distractions, allow noise-cancelling headphones or ear defenders, and check that classroom lights aren't flickering.</p>
+        </article>
+        <article class="bg-white rounded-2xl p-5 border-2 border-slate-200">
+          <h3 class="font-bold text-slate-900 text-base">Make room to move</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mt-1.5">Build in breaks and time to move around, rather than expecting a child to stay still for a whole lesson.</p>
+        </article>
+        <article class="bg-white rounded-2xl p-5 border-2 border-slate-200">
+          <h3 class="font-bold text-slate-900 text-base">Take pressure off memory</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mt-1.5">Offer extra help with staying organized, and use technology or written supports so everything doesn't have to be held in mind.</p>
+        </article>
+        <article class="bg-white rounded-2xl p-5 border-2 border-slate-200">
+          <h3 class="font-bold text-slate-900 text-base">Allow more time</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mt-1.5">Extra time on assignments, projects, and tests gives a child a fairer chance to show what they know.</p>
+        </article>
+        <article class="bg-white rounded-2xl p-5 border-2 border-slate-200">
+          <h3 class="font-bold text-slate-900 text-base">Keep things predictable</h3>
+          <p class="text-sm text-slate-600 leading-relaxed mt-1.5">Predictable routines can reduce anxiety. If a child becomes overwhelmed, respond to the distress and look for what caused it. A meltdown is not bad behavior.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT & SOURCES -->
+  <footer class="border-t border-slate-200 bg-white py-10 px-5">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 text-sm text-slate-600 leading-relaxed">
+      <div class="space-y-2">
+        <h2 class="font-bold text-slate-950 text-lg heading-font">About This Simulator</h2>
+        <p>This is an awareness tool. It isn't a diagnostic test or medical advice, and your score says nothing about you or anyone else.</p>
+        <p>Simulations have limits. Research has not found that they reliably improve attitudes toward disabled people, and they can leave people feeling distress or pity. Use this to start a conversation, and listen to autistic people and people with ADHD about their own experiences.</p>
+      </div>
+      <div class="space-y-2">
+        <h2 class="font-bold text-slate-950 text-lg heading-font">Sources</h2>
+        <ul class="list-disc pl-5 space-y-1">
+          <li><a class="underline hover:text-slate-950" href="https://www.autism.org.uk/advice-and-guidance/behaviour/meltdowns/all-audiences">National Autistic Society: Meltdowns</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.autism.org.uk/advice-and-guidance/professional-practice/adjustments-sensory">National Autistic Society: Adjustments for sensory differences</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.leicspart.nhs.uk/autism-space/education/sensory-processing-issues-in-school/">NHS Leicestershire: Sensory processing in school</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.locala.org.uk/fileadmin/Environmental_Sensory_Audit_and_Checklist_for_Schools_and_Classrooms.pdf">Locala: Environmental sensory audit for schools</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.cdc.gov/adhd/treatment/classroom.html">CDC: ADHD in the classroom</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://chadd.org/for-educators/classroom-accommodations/">CHADD: Classroom accommodations</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.mdpi.com/2076-3425/16/1/53">Sensory phenotypes in autism: review (2026)</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.frontiersin.org/journals/psychiatry/articles/10.3389/fpsyt.2024.1492126/full">The dopamine hypothesis for ADHD: review (2024)</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.energy.gov/sites/default/files/2024-05/ssl-veitch-miller-2024-leukos_tlm.pdf">U.S. Department of Energy: Light modulation research</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://experts.umn.edu/en/publications/meta-analysis-of-disability-simulation-research/">Meta-analysis of disability simulation research (2007)</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://deiteaching.nursing.uw.edu/crip-for-a-day-the-unintended-negative-consequences-of-disability-simulations/">Nario-Redmond et al.: Effects of disability simulations (2017)</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MULTI-QUIZ ENGINE & SENSORY DISTORTION SCRIPT -->
+  <script>
+    // The page still works if the icon library can't load
+    function refreshIcons() {
+      if (window.lucide) lucide.createIcons();
+    }
+
+    const quizBanks = {
+      '1-2': { label: 'Grades 1–2' },
+      '3-4': { label: 'Grades 3–4' },
+      '5-6': { label: 'Grades 5–6' },
+      '7-8': { label: 'Grades 7–8' },
+      '9-10': { label: 'Grades 9–10' }
+    };
+
+    // ---- Question generators: every attempt gets 10 new random questions ----
+    const rand = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+    const pick = list => list[Math.floor(Math.random() * list.length)];
+    const neg = n => (n < 0 ? `(${n})` : `${n}`);
+
+    // Each maker returns: board text, spoken prompt, answer, worked solution,
+    // a plain arithmetic check, and likely mistakes to use as wrong answers
+    const questionMakers = {
+      '1-2': [
+        () => { const a = rand(2, 9), b = rand(2, 9), c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [c + 1, c - 1], hint: `Start at ${a} and count on ${b}: ${c}` }; },
+        () => { const a = rand(6, 19), b = rand(2, Math.min(9, a - 1)), c = a - b;
+          return { board: `${a} - ${b} = ?`, prompt: `What is ${a} - ${b}?`, answer: c, calc: `${a}-${b}`, traps: [c + 1, c - 1], hint: `Count back ${b} from ${a}: ${c}` }; },
+        () => { const a = rand(1, 5) * 10, b = rand(1, 4) * 10, c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [c + 10, c - 10], hint: `${a / 10} tens + ${b / 10} tens = ${c / 10} tens: ${c}` }; },
+        () => { const a = rand(11, 79), c = a + 10;
+          return { board: `${a} + 10 = ?`, prompt: `What is ${a} + 10?`, answer: c, calc: `${a}+10`, traps: [a + 1, c + 10], hint: `Add 1 ten to ${a}: ${c}` }; },
+        () => { const a = rand(11, 18), b = rand(a - 10 + 1, 9), c = a - b;
+          return { board: `${a} - ${b} = ?`, prompt: `What is ${a} - ${b}?`, answer: c, calc: `${a}-${b}`, traps: [c + 1, c - 1], hint: `${a} - ${a - 10} = 10, then subtract ${b - (a - 10)} more: ${c}` }; },
+        () => { const a = rand(2, 5), c = a * 2;
+          return { board: `Double ${a} = ?`, prompt: `What is double ${a}?`, answer: c, calc: `${a}*2`, traps: [c + 1, a + 1], hint: `${a} + ${a} = ${c}` }; }
+      ],
+      '3-4': [
+        () => { const a = rand(12, 59), b = rand(12, 39), c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [c - 10, c + 10, c + 1], hint: `${a} + ${b - (b % 10)} = ${a + b - (b % 10)}, then add ${b % 10}: ${c}` }; },
+        () => { const a = rand(41, 98), b = rand(12, a - 11), c = a - b;
+          return { board: `${a} - ${b} = ?`, prompt: `What is ${a} - ${b}?`, answer: c, calc: `${a}-${b}`, traps: [c + 10, c - 10, c + 2], hint: `${a} - ${b - (b % 10)} = ${a - b + (b % 10)}, then subtract ${b % 10}: ${c}` }; },
+        () => { const a = rand(3, 9), b = rand(3, 9), c = a * b;
+          return { board: `${a} × ${b} = ?`, prompt: `What is ${a} × ${b}?`, answer: c, calc: `${a}*${b}`, traps: [c + a, c - b, a * (b + 1)], hint: `${a} × ${b - 1} = ${a * (b - 1)}, then add ${a}: ${c}` }; },
+        () => { const b = rand(2, 9), c = rand(2, 9), a = b * c;
+          return { board: `${a} ÷ ${b} = ?`, prompt: `What is ${a} ÷ ${b}?`, answer: c, calc: `${a}/${b}`, traps: [c + 1, c - 1, b + 1], hint: `${b} × ${c} = ${a}, so the answer is ${c}` }; },
+        () => { const a = rand(15, 69), b = pick([19, 29, 39]), c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [c + 1, c - 1, c + 10], hint: `${a} + ${b + 1} = ${c + 1}, then subtract 1: ${c}` }; },
+        () => { const a = rand(2, 9), c = a * 10;
+          return { board: `${a} × 10 = ?`, prompt: `What is ${a} × 10?`, answer: c, calc: `${a}*10`, traps: [a + 10, c + 10, c * 10], hint: `Multiplying by 10 adds a zero: ${c}` }; }
+      ],
+      '5-6': [
+        () => { const a = rand(11, 25), b = rand(3, 9), c = a * b;
+          return { board: `${a} × ${b} = ?`, prompt: `What is ${a} × ${b}?`, answer: c, calc: `${a}*${b}`, traps: [c + b, c - b, c + 10], hint: `10 × ${b} = ${10 * b}, ${a - 10} × ${b} = ${(a - 10) * b}, total ${c}` }; },
+        () => { const b = rand(3, 12), c = rand(11, 19), a = b * c;
+          return { board: `${a} ÷ ${b} = ?`, prompt: `What is ${a} ÷ ${b}?`, answer: c, calc: `${a}/${b}`, traps: [c + 1, c - 1, c + 2], hint: `${b} × ${c} = ${a}, so the answer is ${c}` }; },
+        () => { const d = pick([2, 3, 4, 5]), n = rand(1, d - 1), w = d * rand(3, 12), c = (w / d) * n;
+          return { board: `${n}/${d} of ${w} = ?`, prompt: `What is ${n}/${d} of ${w}?`, answer: c, calc: `${w}*${n}/${d}`, traps: [w / d, c + w / d, c + 1], hint: `${w} ÷ ${d} = ${w / d}, then × ${n} = ${c}` }; },
+        () => { const p = pick([10, 20, 25, 50]), w = (100 / p) * rand(2, 12), c = (w * p) / 100;
+          return { board: `${p}% of ${w} = ?`, prompt: `What is ${p}% of ${w}?`, answer: c, calc: `${w}*${p}/100`, traps: [c * 2, c + 5, c + 1], hint: `${p}% is 1/${100 / p}: ${w} ÷ ${100 / p} = ${c}` }; },
+        () => { const a = rand(12, 48) * 5, b = rand(12, 39) * 5, c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [c + 10, c - 10, c + 100], hint: `${a} + ${b - (b % 100)} = ${a + b - (b % 100)}, then add ${b % 100}: ${c}` }; },
+        () => { const a = rand(1, 8) + 0.5, b = rand(1, 8) + 0.5, c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [c - 1, c + 1, c - 2], hint: `${a - 0.5} + ${b - 0.5} = ${c - 1}, and 0.5 + 0.5 = 1, total ${c}` }; },
+        () => { const b = rand(110, 680), c = 1000 - b;
+          return { board: `1000 - ${b} = ?`, prompt: `What is 1000 - ${b}?`, answer: c, calc: `1000-${b}`, traps: [c + 10, c - 10, c + 100], hint: `${b} + ${c} = 1000, so the answer is ${c}` }; }
+      ],
+      '7-8': [
+        () => { const x = rand(2, 9), a = rand(2, 6), b = rand(1, 12), c = a * x + b;
+          return { board: `${a}x + ${b} = ${c}, x = ?`, prompt: `If ${a}x + ${b} = ${c}, what is x?`, answer: x, calc: `(${c}-${b})/${a}`, traps: [x + 1, x - 1, c - b], hint: `${a}x = ${c - b}, so x = ${x}` }; },
+        () => { const x = rand(3, 12), a = rand(2, 5), b = rand(1, 9), c = a * x - b;
+          return { board: `${a}x - ${b} = ${c}, x = ?`, prompt: `If ${a}x - ${b} = ${c}, what is x?`, answer: x, calc: `(${c}+${b})/${a}`, traps: [x + 1, x - 1, c + b], hint: `${a}x = ${c + b}, so x = ${x}` }; },
+        () => { const a = -rand(2, 15), b = rand(2, 20), c = a + b;
+          return { board: `${a} + ${b} = ?`, prompt: `What is ${a} + ${b}?`, answer: c, calc: `${a}+${b}`, traps: [-c, c + 1, a - b], hint: `${b} - ${-a} = ${c}` }; },
+        () => { const a = -rand(2, 9), b = rand(2, 9), c = a * b;
+          return { board: `${a} × ${b} = ?`, prompt: `What is ${a} × ${b}?`, answer: c, calc: `${a}*${b}`, traps: [-c, c + b, a + b], hint: `${-a} × ${b} = ${-c}, and negative × positive is negative: ${c}` }; },
+        () => { const b = -rand(2, 9), c = rand(2, 9), a = b * c;
+          return { board: `${a} ÷ ${b} = ?`, prompt: `What is ${a} ÷ ${neg(b)}?`, answer: c, calc: `${a}/${b}`, traps: [-c, c + 1, -c - 1], hint: `${-a} ÷ ${-b} = ${c}, and two negatives make a positive: ${c}` }; },
+        () => { const p = pick([15, 20, 30, 40]), w = 20 * rand(2, 12), c = (w * p) / 100;
+          return { board: `${p}% of ${w} = ?`, prompt: `What is ${p}% of ${w}?`, answer: c, calc: `${w}*${p}/100`, traps: [c + w / 10, c - w / 20, c + 1], hint: `10% of ${w} = ${w / 10}, so ${p}% = ${c}` }; },
+        () => { const a = rand(2, 7), b = rand(a + 1, 9), k = rand(2, 6), c = b * k;
+          return { board: `${a} : ${b} = ${a * k} : ?`, prompt: `Complete the ratio: ${a} : ${b} = ${a * k} : ?`, answer: c, calc: `${b}*${a * k}/${a}`, traps: [b + a * k - a, c + b, c - k], hint: `${a} × ${k} = ${a * k}, so ${b} × ${k} = ${c}` }; },
+        () => { const a = rand(11, 16), c = a * a;
+          return { board: `${a} × ${a} = ?`, prompt: `What is ${a} × ${a}?`, answer: c, calc: `${a}*${a}`, traps: [c + 10, c - 10, c + a], hint: `${a} × 10 = ${a * 10}, ${a} × ${a - 10} = ${a * (a - 10)}, total ${c}` }; }
+      ],
+      '9-10': [
+        () => { const x = rand(2, 12), c = rand(2, 4), a = rand(1, c - 1), b = rand(1, 15), d = (c - a) * x + b;
+          return { board: `${c}x + ${b} = ${a === 1 ? '' : a}x + ${d}`, prompt: `If ${c}x + ${b} = ${a === 1 ? '' : a}x + ${d}, what is x?`, answer: x, calc: `(${d}-${b})/(${c}-${a})`, traps: [x + 1, d - b, x - 1], hint: `${c - a}x = ${d - b}, so x = ${x}` }; },
+        () => { const x = rand(4, 12), a = rand(1, Math.min(5, x - 1)), c = x * x - a * a;
+          return { board: `(x + ${a})(x - ${a}), x = ${x}`, prompt: `What is (x + ${a})(x - ${a}) when x = ${x}?`, answer: c, calc: `(${x}+${a})*(${x}-${a})`, traps: [x * x + a * a, x * x, c - a], hint: `${x + a} × ${x - a} = ${c}` }; },
+        () => { const x = rand(6, 15), c = x * x;
+          return { board: `x² = ${c}, x > 0, x = ?`, prompt: `If x squared is ${c} and x is positive, what is x?`, answer: x, calc: `Math.sqrt(${c})`, traps: [x + 1, x - 1, c / 2], hint: `${x} × ${x} = ${c}, so x = ${x}` }; },
+        () => { const x = rand(2, 9), y = rand(1, 6), a = rand(2, 5), b = rand(2, 4), c = a * x - b * y;
+          return { board: `${a}x - ${b}y, x = ${x}, y = ${y}`, prompt: `What is ${a}x - ${b}y when x = ${x} and y = ${y}?`, answer: c, calc: `${a}*${x}-${b}*${y}`, traps: [a * x + b * y, c + 1, c - b], hint: `${a * x} - ${b * y} = ${c}` }; },
+        () => { const x1 = rand(0, 4), y1 = rand(0, 6), run = rand(1, 4), m = rand(2, 5), x2 = x1 + run, y2 = y1 + m * run;
+          return { board: `Slope (${x1}, ${y1}) to (${x2}, ${y2}) = ?`, prompt: `What is the slope from (${x1}, ${y1}) to (${x2}, ${y2})?`, answer: m, calc: `(${y2}-${y1})/(${x2}-${x1})`, traps: [m + 1, y2 - y1, m - 1], hint: `(${y2} - ${y1}) ÷ (${x2} - ${x1}) = ${y2 - y1} ÷ ${run} = ${m}` }; },
+        () => { const x = rand(4, 15), y = rand(1, x - 1), s = x + y, d = x - y;
+          return { board: `x + y = ${s}, x - y = ${d}, x = ?`, prompt: `If x + y = ${s} and x - y = ${d}, what is x?`, answer: x, calc: `(${s}+${d})/2`, traps: [y, s, x + 1], hint: `Add the equations: 2x = ${s + d}, so x = ${x}` }; },
+        () => { const n = rand(2, 5), v = 10 ** n;
+          return { board: `log₁₀ ${v} = ?`, prompt: `What is log base 10 of ${v}?`, answer: n, calc: `Math.log10(${v})`, traps: [n + 1, n - 1, 10 * n], hint: `10 to the power ${n} is ${v}, so the answer is ${n}` }; },
+        () => { const m = rand(4, 15), a = m - rand(1, 4), b = m, c = 3 * m - a - b;
+          return { board: `Mean of ${a}, ${b}, ${c} = ?`, prompt: `What is the mean of ${a}, ${b}, and ${c}?`, answer: m, calc: `(${a}+${b}+${c})/3`, traps: [m + 1, a + b + c, c], hint: `${a} + ${b} + ${c} = ${3 * m}, then ÷ 3 = ${m}` }; }
+      ]
+    };
+
+    function makeOptions(answer, traps, allowNegative) {
+      const ok = v => Number.isFinite(v) && v !== answer && (allowNegative || v >= 0);
+      const options = [answer];
+      const extras = answer >= 20 ? [10, -10, 1, -1, 2, -2, 5, -5] : [1, -1, 2, -2, 3, -3, 4];
+      const pool = [...traps.sort(() => Math.random() - 0.5), ...extras.map(d => answer + d)];
+      for (const v of pool) {
+        if (options.length === 4) break;
+        if (ok(v) && !options.includes(v)) options.push(v);
+      }
+      return options;
+    }
+
+    function generateQuiz(grade) {
+      const makers = questionMakers[grade];
+      const questions = [];
+      const seen = new Set();
+      let order = [];
+      let guard = 0;
+      while (questions.length < 10 && guard++ < 500) {
+        // Cycle through every question type before repeating one
+        if (!order.length) order = [...makers.keys()].sort(() => Math.random() - 0.5);
+        const q = makers[order.pop()]();
+        if (seen.has(q.board)) continue;
+        seen.add(q.board);
+        const allowNegative = grade === '7-8' || grade === '9-10';
+        questions.push({
+          id: questions.length + 1,
+          boardMath: q.board,
+          prompt: q.prompt,
+          correct: q.answer,
+          calc: q.calc,
+          hint: q.hint,
+          options: makeOptions(q.answer, q.traps, allowNegative)
+        });
+      }
+      return questions;
+    }
+
+    // Shown behind the start screen until a grade is chosen
+    let quizDatabase = generateQuiz('3-4');
+    let selectedGrade = null;
+
+    let currentQuizIndex = 0;
+    const userAnswers = {};
+    let questionTimer = null;
+    let secondsRemaining = 10;
+    let questionTimeLimit = 10;
+    let isQuizStarted = false;
+    const questionTimeLeft = {};
+    let memorySlipTimer = null;
+    let isQuizFinished = false;
+    let peakLoad = 0;
+    let dialsBeforeFinish = null;
+    let restartArmTimer = null;
+
+    const state = {
+      soundLevel: 50,
+      lightLevel: 40,
+      adhdLevel: 60,
+      tactileLevel: 30,
+      audioEnabled: false,
+      audioInitialized: false
+    };
+
+    const intrusiveThoughtsList = [
+      "WHAT DID THE TEACHER JUST SAY?!",
+      "The clock tick is drilling into my head",
+      "My shirt tag feels like crushed glass on my neck",
+      "Did I leave my notebook at home?",
+      "Why is that fluorescent light buzzing so loudly?!",
+      "Everyone else is writing already, I'm falling behind",
+      "Look at that bird outside on the tree branch",
+      "I need to shake my leg or I will explode",
+      "What was step 2 again? It completely vanished!",
+      "I wonder how deep the Mariana Trench is?"
+    ];
+
+    const bodyThoughts = [
+      "My shirt tag feels like crushed glass on my neck",
+      "I need to shake my leg or I will explode",
+      "This chair is impossible to sit still on"
+    ];
+
+    function showProblem(q, hiddenOperand = null) {
+      let board = q.boardMath;
+      let prompt = q.prompt;
+
+      if (hiddenOperand !== null) {
+        const numbers = q.boardMath.match(/\d+(?:\.\d+)?/g) || [];
+        const target = numbers[hiddenOperand % numbers.length];
+        if (target) {
+          const pattern = new RegExp(`(?<![\\d.])${target.replace('.', '\\.')}(?![\\d.])`);
+          board = board.replace(pattern, '??');
+          prompt = prompt.replace(pattern, '??');
+        }
+      }
+
+      // Longer questions use smaller chalk so they always fit the board
+      const boardText = document.getElementById('boardMathProblem');
+      const fontSize = Math.min(96, Math.floor(430 / (q.boardMath.length * 0.43)));
+      boardText.setAttribute('font-size', fontSize);
+      boardText.setAttribute('y', Math.round(148 + fontSize * 0.31));
+
+      document.getElementById('boardMathProblem').textContent = board;
+      document.getElementById('hudQuizPrompt').textContent = prompt;
+    }
+
+    function clearMemorySlip() {
+      if (memorySlipTimer) clearTimeout(memorySlipTimer);
+      memorySlipTimer = null;
+    }
+
+    // A stray thought briefly knocks one number out of mind
+    function triggerMemorySlip() {
+      if (!isQuizStarted || memorySlipTimer || userAnswers[currentQuizIndex]) return false;
+      const q = quizDatabase[currentQuizIndex];
+      showProblem(q, Math.random() < 0.5 ? 0 : 1);
+      memorySlipTimer = setTimeout(() => {
+        memorySlipTimer = null;
+        showProblem(q);
+      }, 900 + state.adhdLevel * 12);
+      return true;
+    }
+
+    function renderQuiz() {
+      const q = quizDatabase[currentQuizIndex];
+
+      clearMemorySlip();
+      showProblem(q);
+      const answered = userAnswers[currentQuizIndex];
+
+      document.getElementById('paperQuizHeader').textContent = `Question ${q.id} of 10`;
+
+      document.getElementById('hudQuizNumber').textContent = selectedGrade
+        ? `${quizBanks[selectedGrade].label}: Question ${q.id} of 10`
+        : `Question ${q.id} of 10`;
+      document.getElementById('quizPillBadge').textContent = `Q${q.id}/10`;
+
+      document.getElementById('prevBtn').disabled = !isQuizStarted || currentQuizIndex === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = !isQuizStarted;
+      nextBtn.innerHTML = currentQuizIndex === quizDatabase.length - 1 ? `<span>Finish</span>` : `<span>Next</span><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>`;
+
+      const solution = document.getElementById('hudSolution');
+      solution.textContent = answered ? q.hint : '';
+      solution.classList.toggle('hidden', !answered);
+
+      const optionsBox = document.getElementById('optionsContainer');
+      optionsBox.innerHTML = '';
+
+      const feedbackBadge = document.getElementById('quizFeedbackBadge');
+
+      if (answered) {
+        feedbackBadge.classList.remove('hidden');
+        if (answered.isTimeout) {
+          feedbackBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+          feedbackBadge.textContent = '⏱ Time ran out';
+        } else if (answered.isCorrect) {
+          feedbackBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+          feedbackBadge.textContent = '✓ Solved correctly';
+        } else {
+          feedbackBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800';
+          feedbackBadge.textContent = '✗ Not this time';
+        }
+      } else {
+        feedbackBadge.classList.add('hidden');
+      }
+
+      (q.shownOptions || q.options).forEach(opt => {
+        const btn = document.createElement('button');
+        let btnClasses = 'min-w-[58px] px-3 py-2 rounded-lg border font-bold text-sm mono-font transition shadow-sm ';
+
+        if (answered) {
+          if (opt === q.correct) {
+            btnClasses += 'bg-emerald-600 text-white border-emerald-700';
+          } else if (opt === answered.chosen && !answered.isCorrect) {
+            btnClasses += 'bg-rose-600 text-white border-rose-700';
+          } else {
+            btnClasses += 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed';
+          }
+          btn.disabled = true;
+        } else {
+          if (isQuizStarted) {
+            btnClasses += 'bg-white hover:bg-slate-100 text-slate-900 border-slate-300 hover:border-slate-400';
+            btn.onclick = () => selectAnswer(opt);
+          } else {
+            // Answers stay locked until the quiz starts
+            btnClasses += 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed';
+            btn.disabled = true;
+          }
+        }
+
+        btn.className = btnClasses;
+        btn.textContent = opt;
+        optionsBox.appendChild(btn);
+      });
+
+      updateScore();
+      refreshIcons();
+      startQuestionTimer();
+    }
+
+    function updateClockVisuals(secondsLeft) {
+      const miniRing = document.getElementById('quizClockRing');
+      const miniText = document.getElementById('quizClockMiniDisplay');
+      const timerDisplay = document.getElementById('quizTimerDisplay');
+      const deskDigitalTimer = document.getElementById('deskDigitalTimer');
+
+      if (questionTimeLimit === 0) {
+        if (deskDigitalTimer) deskDigitalTimer.textContent = 'Off';
+        if (miniRing) miniRing.style.strokeDashoffset = 0;
+        if (miniText) miniText.textContent = '–';
+        if (timerDisplay) {
+          timerDisplay.textContent = 'No limit';
+          timerDisplay.className = 'whitespace-nowrap text-xs font-black text-slate-300 mono-font leading-tight';
+        }
+        return;
+      }
+
+
+      // Update the worksheet timer
+      if (deskDigitalTimer) {
+        deskDigitalTimer.textContent = `${Math.max(0, secondsLeft)}s`;
+        if (secondsLeft <= 3 && secondsLeft > 0) {
+          deskDigitalTimer.setAttribute('fill', '#ef4444');
+        } else {
+          deskDigitalTimer.setAttribute('fill', '#f43f5e');
+        }
+      }
+
+      // Update the timer in the top bar
+      const circumference = 87.96; // 2 * PI * 14
+      const strokeOffset = circumference * (1 - (secondsLeft / questionTimeLimit));
+
+      if (miniRing) {
+        miniRing.style.strokeDashoffset = strokeOffset;
+        if (secondsLeft <= 3 && secondsLeft > 0) {
+          miniRing.setAttribute('stroke', '#ef4444');
+        } else if (secondsLeft <= 6) {
+          miniRing.setAttribute('stroke', '#f59e0b');
+        } else {
+          miniRing.setAttribute('stroke', '#f43f5e');
+        }
+      }
+
+      if (miniText) {
+        miniText.textContent = Math.max(0, secondsLeft);
+      }
+
+      if (timerDisplay) {
+        if (!isQuizStarted) {
+          timerDisplay.textContent = `Ready (${questionTimeLimit}s)`;
+          timerDisplay.className = 'whitespace-nowrap text-xs font-black text-slate-400 mono-font leading-tight';
+        } else if (secondsLeft <= 0) {
+          timerDisplay.textContent = 'Time Up!';
+          timerDisplay.className = 'whitespace-nowrap text-xs font-black text-rose-500 mono-font leading-tight';
+        } else {
+          timerDisplay.textContent = `${secondsLeft}s`;
+          if (secondsLeft <= 3) {
+            timerDisplay.className = 'whitespace-nowrap text-xs font-black text-rose-500 mono-font leading-tight animate-bounce';
+          } else if (secondsLeft <= 6) {
+            timerDisplay.className = 'whitespace-nowrap text-xs font-black text-amber-400 mono-font leading-tight';
+          } else {
+            timerDisplay.className = 'whitespace-nowrap text-xs font-black text-rose-400 mono-font leading-tight';
+          }
+        }
+      }
+    }
+
+    function toggleFullscreen() {
+      const stage = document.getElementById('simStageViewport');
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (stage.requestFullscreen) {
+          stage.requestFullscreen().catch(err => console.log(err));
+        } else if (stage.webkitRequestFullscreen) {
+          stage.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(err => console.log(err));
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    function onFullscreenChange() {
+      const isFs = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      fitClassroomScene();
+      const headerFsText = document.getElementById('headerFsText');
+      const headerFsIcon = document.getElementById('headerFsIcon');
+      const viewportFsIcon = document.getElementById('viewportFsIcon');
+
+      if (headerFsText) headerFsText.textContent = isFs ? 'Exit Fullscreen' : 'Fullscreen Focus';
+      if (headerFsIcon) headerFsIcon.setAttribute('data-lucide', isFs ? 'minimize' : 'maximize');
+      if (viewportFsIcon) viewportFsIcon.setAttribute('data-lucide', isFs ? 'minimize-2' : 'maximize-2');
+
+      refreshIcons();
+    }
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+    function startQuizFromBeginning() {
+      initAudio();
+      questionTimeLimit = parseInt(document.getElementById('timeLimitSelect').value, 10);
+      // New random questions on every start, including Try again
+      if (selectedGrade) quizDatabase = generateQuiz(selectedGrade);
+      shuffleAnswers();
+      isQuizStarted = true;
+      isQuizFinished = false;
+      if (restartArmTimer) clearTimeout(restartArmTimer);
+      restartArmTimer = null;
+      document.getElementById('quizResultsOverlay').classList.add('hidden');
+      if (dialsBeforeFinish) {
+        Object.assign(state, dialsBeforeFinish);
+        dialsBeforeFinish = null;
+        syncDials();
+      }
+      peakLoad = calculateLoad();
+      currentQuizIndex = 0;
+      // Clear answers
+      for (const k in userAnswers) delete userAnswers[k];
+      for (const k in questionTimeLeft) delete questionTimeLeft[k];
+
+      // Clear any existing popped thought bubbles
+      const container = document.getElementById('thoughtCloudLayer');
+      if (container) container.innerHTML = '';
+
+      const overlay = document.getElementById('quizStartOverlay');
+      if (overlay) {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+
+      const startBtn = document.getElementById('startQuizBtn');
+      const startText = document.getElementById('startQuizText');
+      const startIcon = document.getElementById('startQuizIcon');
+      if (startText) startText.textContent = 'Restart Quiz';
+      if (startIcon) startIcon.setAttribute('data-lucide', 'rotate-ccw');
+      if (startBtn) startBtn.className = 'whitespace-nowrap flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs shadow-sm hover:shadow transition';
+
+      renderQuiz();
+      updateVisualDistortions();
+      startThoughtFlooding();
+      scheduleBirdCall(4000 + Math.random() * 4000);
+      refreshIcons();
+      const firstAnswer = document.querySelector('#optionsContainer button');
+      if (firstAnswer) firstAnswer.focus({ preventScroll: true });
+    }
+
+    function shuffleAnswers() {
+      quizDatabase.forEach(q => {
+        const order = [...q.options];
+        for (let i = order.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [order[i], order[j]] = [order[j], order[i]];
+        }
+        q.shownOptions = order;
+      });
+    }
+
+    function setGrade(grade) {
+      selectedGrade = grade;
+    }
+
+    // The name is optional; it appears on the worksheet and the results screen
+    function studentName() {
+      return document.getElementById('studentNameInput').value.trim().replace(/\s+/g, ' ').slice(0, 24);
+    }
+
+    function updateStudentName() {
+      document.getElementById('paperStudentName').textContent = `Name: ${studentName() || 'Alex Morgan'}`;
+    }
+
+    function beginSelectedQuiz() {
+      const select = document.getElementById('gradeSelect');
+      const error = document.getElementById('gradeError');
+      if (!quizBanks[select.value]) {
+        error.classList.remove('hidden');
+        select.focus();
+        return;
+      }
+      error.classList.add('hidden');
+      setGrade(select.value);
+      updateStudentName();
+      startQuizFromBeginning();
+    }
+
+    function changeGrade() {
+      isQuizStarted = false;
+      isQuizFinished = false;
+      selectedGrade = null;
+      currentQuizIndex = 0;
+      for (const k in userAnswers) delete userAnswers[k];
+      for (const k in questionTimeLeft) delete questionTimeLeft[k];
+      if (dialsBeforeFinish) {
+        Object.assign(state, dialsBeforeFinish);
+        dialsBeforeFinish = null;
+        syncDials();
+      }
+      document.getElementById('quizResultsOverlay').classList.add('hidden');
+      document.getElementById('quizStartOverlay').classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+      document.getElementById('startQuizText').textContent = 'Start Quiz';
+      const select = document.getElementById('gradeSelect');
+      select.value = '';
+      renderQuiz();
+      updateVisualDistortions();
+      select.focus({ preventScroll: true });
+    }
+
+    function toggleQuizActive() {
+      if (!isQuizStarted) {
+        beginSelectedQuiz();
+        return;
+      }
+      if (restartArmTimer) {
+        startQuizFromBeginning();
+        return;
+      }
+      // Second click within 3 seconds confirms the restart
+      const label = document.getElementById('startQuizText');
+      label.textContent = 'Click again';
+      restartArmTimer = setTimeout(() => {
+        restartArmTimer = null;
+        label.textContent = 'Restart Quiz';
+      }, 3000);
+    }
+
+    function startQuestionTimer() {
+      // Clear any prior interval
+      if (questionTimer) {
+        clearInterval(questionTimer);
+        questionTimer = null;
+      }
+
+      if (!isQuizStarted) {
+        updateClockVisuals(questionTimeLimit);
+        return;
+      }
+
+      // If this question is already answered or timed out, display completed state
+      if (userAnswers[currentQuizIndex]) {
+        updateClockVisuals(0);
+        const timerDisplay = document.getElementById('quizTimerDisplay');
+        if (timerDisplay) {
+          timerDisplay.textContent = 'Done';
+          timerDisplay.className = 'whitespace-nowrap text-xs font-bold text-slate-400 mono-font leading-tight';
+        }
+        return;
+      }
+
+      if (questionTimeLimit === 0) {
+        updateClockVisuals(0);
+        return;
+      }
+
+      // Resume this question's own clock, so leaving and returning can't reset it
+      secondsRemaining = questionTimeLeft[currentQuizIndex] ?? questionTimeLimit;
+      updateClockVisuals(secondsRemaining);
+
+      questionTimer = setInterval(() => {
+        secondsRemaining--;
+        questionTimeLeft[currentQuizIndex] = secondsRemaining;
+        updateClockVisuals(secondsRemaining);
+
+        // Clock tick follows the background noise dial
+        if (secondsRemaining > 0 && state.soundLevel > 0) {
+          playBeep(1900, 0.02, 0.01 + (state.soundLevel / 100) * 0.05);
+        }
+
+        // Ticking audio cue when under 4 seconds
+        if (secondsRemaining > 0 && secondsRemaining <= 3 && state.audioEnabled) {
+          playBeep(450, 0.04);
+        }
+
+        if (secondsRemaining <= 0) {
+          clearInterval(questionTimer);
+          questionTimer = null;
+          handleQuestionTimeout();
+        }
+      }, 1000);
+    }
+
+    function handleQuestionTimeout() {
+      if (userAnswers[currentQuizIndex]) return;
+
+      userAnswers[currentQuizIndex] = {
+        chosen: null,
+        isCorrect: false,
+        isTimeout: true
+      };
+
+      playBeep(180, 0.35); // Low buzzer sound
+      renderQuiz();
+    }
+
+    function selectAnswer(chosenVal) {
+      initAudio();
+      if (questionTimer) {
+        clearInterval(questionTimer);
+        questionTimer = null;
+      }
+      const q = quizDatabase[currentQuizIndex];
+      const isCorrect = chosenVal === q.correct;
+
+      userAnswers[currentQuizIndex] = {
+        chosen: chosenVal,
+        isCorrect: isCorrect,
+        isTimeout: false
+      };
+
+      if (isCorrect) {
+        playBeep(700, 0.09);
+        setTimeout(() => playBeep(920, 0.12), 90);
+      } else {
+        playBeep(230, 0.22);
+      }
+
+      renderQuiz();
+      document.getElementById('nextBtn').focus({ preventScroll: true });
+    }
+
+    function nextQuiz() {
+      initAudio();
+      if (currentQuizIndex < quizDatabase.length - 1) {
+        currentQuizIndex++;
+        renderQuiz();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      if (questionTimer) clearInterval(questionTimer);
+      questionTimer = null;
+      stopThoughtFlooding();
+      stopBirdCalls();
+      clearMemorySlip();
+      document.getElementById('thoughtCloudLayer').innerHTML = '';
+
+      const answers = Object.values(userAnswers);
+      const correct = answers.filter(a => a.isCorrect).length;
+      const wrong = answers.filter(a => !a.isCorrect && !a.isTimeout).length;
+
+      const name = studentName();
+      document.getElementById('resultsHeading').textContent = name
+        ? `${name}, you scored ${correct} out of 10`
+        : `You scored ${correct} out of 10`;
+      document.getElementById('resultCorrect').textContent = correct;
+      document.getElementById('resultWrong').textContent = wrong;
+      document.getElementById('resultMissed').textContent = quizDatabase.length - correct - wrong;
+      document.getElementById('resultPeak').textContent = `${peakLoad}%`;
+
+      isQuizFinished = true;
+      dialsBeforeFinish = {
+        soundLevel: state.soundLevel,
+        lightLevel: state.lightLevel,
+        adhdLevel: state.adhdLevel,
+        tactileLevel: state.tactileLevel
+      };
+      applyPreset('calm');
+
+      playBeep(600, 0.1);
+      setTimeout(() => playBeep(850, 0.2), 120);
+
+      document.getElementById('quizResultsOverlay').classList.remove('hidden');
+      document.getElementById('resultsHeading').focus({ preventScroll: true });
+    }
+
+    function prevQuiz() {
+      initAudio();
+      if (currentQuizIndex > 0) {
+        currentQuizIndex--;
+        renderQuiz();
+      }
+    }
+
+    function updateScore() {
+      const correctCount = Object.values(userAnswers).filter(a => a.isCorrect).length;
+      document.getElementById('scoreCounter').textContent = `${correctCount} / 10`;
+    }
+
+    // --- WEB AUDIO API ENGINE ---
+    let audioCtx = null;
+    let humOsc = null;
+    let humGain = null;
+    let noiseNode = null;
+    let noiseGain = null;
+    let tinnitusOsc = null;
+    let tinnitusGain = null;
+    let birdGain = null;
+    let birdCallTimer = null;
+    let birdSingingTimer = null;
+
+    function initAudio() {
+      // Sound is opt-in: nothing is created until the visitor turns it on
+      if (state.audioInitialized || !state.audioEnabled) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+
+        humOsc = audioCtx.createOscillator();
+        humOsc.type = 'sawtooth';
+        humOsc.frequency.setValueAtTime(120, audioCtx.currentTime);
+
+        const humFilter = audioCtx.createBiquadFilter();
+        humFilter.type = 'bandpass';
+        humFilter.frequency.setValueAtTime(120, audioCtx.currentTime);
+        humFilter.Q.setValueAtTime(5, audioCtx.currentTime);
+
+        humGain = audioCtx.createGain();
+        humGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+        humOsc.connect(humFilter);
+        humFilter.connect(humGain);
+        humGain.connect(audioCtx.destination);
+        humOsc.start();
+
+        tinnitusOsc = audioCtx.createOscillator();
+        tinnitusOsc.type = 'sine';
+        tinnitusOsc.frequency.setValueAtTime(4600, audioCtx.currentTime);
+
+        tinnitusGain = audioCtx.createGain();
+        tinnitusGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+        tinnitusOsc.connect(tinnitusGain);
+        tinnitusGain.connect(audioCtx.destination);
+        tinnitusOsc.start();
+
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          data[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = data[i];
+          data[i] *= 3.5;
+        }
+
+        noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = noiseBuffer;
+        noiseNode.loop = true;
+
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.setValueAtTime(950, audioCtx.currentTime);
+
+        noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+        noiseNode.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noiseNode.start();
+
+        birdGain = audioCtx.createGain();
+        birdGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        birdGain.connect(audioCtx.destination);
+
+        state.audioInitialized = true;
+        updateAudioLevels();
+      } catch (e) {
+        console.warn("Audio Context gesture needed:", e);
+      }
+    }
+
+    function updateAudioLevels() {
+      if (!audioCtx || !state.audioEnabled || isQuizFinished) {
+        if (humGain) humGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        if (noiseGain) noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        if (tinnitusGain) tinnitusGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        if (birdGain) birdGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        return;
+      }
+
+      const targetHum = (state.soundLevel / 100) * 0.15;
+      humGain.gain.setTargetAtTime(targetHum, audioCtx.currentTime, 0.08);
+
+      const targetNoise = (state.soundLevel / 100) * 0.20;
+      noiseGain.gain.setTargetAtTime(targetNoise, audioCtx.currentTime, 0.08);
+
+      birdGain.gain.setTargetAtTime((state.soundLevel / 100) * 1.2, audioCtx.currentTime, 0.08);
+
+      const totalLoad = calculateLoad();
+      const targetTinnitus = totalLoad > 65 ? ((totalLoad - 65) / 35) * 0.09 : 0;
+      tinnitusGain.gain.setTargetAtTime(targetTinnitus, audioCtx.currentTime, 0.1);
+    }
+
+    function playBeep(freq = 600, duration = 0.08, volume = 0.06) {
+      if (!audioCtx || !state.audioEnabled) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(volume, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playBirdNote(start, fromHz, toHz, duration, volume) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(fromHz, start);
+      osc.frequency.exponentialRampToValueAtTime(toHz, start + duration);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + duration * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(birdGain);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    }
+
+    // Cardinal song: three falling whistles, then a quick rising trill
+    function playCardinalCall() {
+      if (!audioCtx || !birdGain || !state.audioEnabled || !isQuizStarted || isQuizFinished || state.soundLevel <= 0) return false;
+      const start = audioCtx.currentTime + 0.03;
+      [0, 0.42, 0.84].forEach(offset => playBirdNote(start + offset, 3900, 1900, 0.34, 0.11));
+      [1.3, 1.48, 1.66, 1.84].forEach(offset => {
+        playBirdNote(start + offset, 2100, 3300, 0.08, 0.09);
+        playBirdNote(start + offset + 0.08, 3300, 2300, 0.08, 0.08);
+      });
+
+      const head = document.querySelector('.bird-flutter');
+      if (head) {
+        head.classList.add('is-singing');
+        clearTimeout(birdSingingTimer);
+        birdSingingTimer = setTimeout(() => head.classList.remove('is-singing'), 2100);
+      }
+      return true;
+    }
+
+    function stopBirdCalls() {
+      clearTimeout(birdCallTimer);
+      birdCallTimer = null;
+    }
+
+    function scheduleBirdCall(delay = 10000 + Math.random() * 10000) {
+      stopBirdCalls();
+      birdCallTimer = setTimeout(() => {
+        playCardinalCall();
+        scheduleBirdCall();
+      }, delay);
+    }
+
+    function calculateLoad() {
+      return Math.min(100, Math.round(
+        (state.lightLevel * 0.30) +
+        (state.soundLevel * 0.30) +
+        (state.adhdLevel * 0.25) +
+        (state.tactileLevel * 0.15)
+      ));
+    }
+
+    function updateVisualDistortions() {
+      const totalLoad = calculateLoad();
+
+      const progressBar = document.getElementById('loadProgressBar');
+      const loadBadge = document.getElementById('loadBadge');
+      const viewport = document.getElementById('simStageViewport');
+      const glareOverlay = document.getElementById('glareFilterOverlay');
+      const tunnelVision = document.getElementById('tunnelVisionOverlay');
+      const meltdownPulse = document.getElementById('meltdownPulseOverlay');
+      const banner = document.getElementById('meltdownAlertBanner');
+      const header = document.getElementById('statusHeader');
+      const desc = document.getElementById('statusDesc');
+
+      progressBar.style.width = `${totalLoad}%`;
+      document.getElementById('loadMeter').setAttribute('aria-valuenow', totalLoad);
+      if (isQuizStarted && !isQuizFinished) peakLoad = Math.max(peakLoad, totalLoad);
+
+      const answerRow = document.getElementById('optionsContainer');
+      answerRow.style.setProperty('--restless', `${((state.tactileLevel / 100) * 5).toFixed(1)}px`);
+      answerRow.classList.toggle('restless-active', isQuizStarted && state.tactileLevel > 20);
+
+      if (state.lightLevel > 50) {
+        viewport.classList.add('flicker-active');
+        glareOverlay.style.opacity = ((state.lightLevel - 45) / 55).toString();
+      } else {
+        viewport.classList.remove('flicker-active');
+        glareOverlay.style.opacity = '0';
+      }
+
+      if (totalLoad >= 75) {
+        loadBadge.innerText = `${totalLoad}% (OVERLOAD)`;
+        loadBadge.className = 'whitespace-nowrap mono-font px-2 py-0.5 rounded font-bold text-[11px] bg-rose-600 text-white animate-pulse';
+
+        viewport.classList.add('shake-active');
+        tunnelVision.style.opacity = ((totalLoad - 70) / 30).toString();
+        meltdownPulse.classList.add('pulse-vignette');
+        meltdownPulse.style.opacity = '1';
+
+        banner.className = 'p-3.5 rounded-xl border-2 border-rose-400 bg-rose-50 text-xs text-rose-900 leading-relaxed';
+        header.innerText = 'Simulation: Overload';
+        desc.innerText = 'Everything is competing at once. The shaking and narrowed view are visual metaphors for feeling overwhelmed, not symptoms everyone has.';
+      } else if (totalLoad >= 45) {
+        loadBadge.innerText = `${totalLoad}% (RISING)`;
+        loadBadge.className = 'whitespace-nowrap mono-font px-2 py-0.5 rounded font-bold text-[11px] bg-amber-100 text-amber-800';
+
+        viewport.classList.remove('shake-active');
+        tunnelVision.style.opacity = '0';
+        meltdownPulse.classList.remove('pulse-vignette');
+        meltdownPulse.style.opacity = '0';
+
+        banner.className = 'p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-700 leading-relaxed';
+        header.innerText = 'Simulation: Load Rising';
+        desc.innerText = 'Glare and background noise are making it harder to concentrate.';
+      } else {
+        loadBadge.innerText = `${totalLoad}% (CALM)`;
+        loadBadge.className = 'whitespace-nowrap mono-font px-2 py-0.5 rounded font-bold text-[11px] bg-emerald-100 text-emerald-800';
+
+        viewport.classList.remove('shake-active');
+        tunnelVision.style.opacity = '0';
+        meltdownPulse.classList.remove('pulse-vignette');
+        meltdownPulse.style.opacity = '0';
+
+        banner.className = 'p-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-700 leading-relaxed';
+        header.innerText = 'Simulation: Calm';
+        desc.innerText = 'The room is quieter, and it is easier to hold numbers in mind.';
+      }
+
+      updateAudioLevels();
+    }
+
+    let thoughtTimer = null;
+
+    function stopThoughtFlooding() {
+      if (thoughtTimer) clearTimeout(thoughtTimer);
+      thoughtTimer = null;
+    }
+
+    const thoughtStyles = {
+      normal:  { icon: '💭', scale: 1,    classes: 'bg-slate-900 text-white border-slate-600' },
+      urgent:  { icon: '⚡', scale: 1.1,  classes: 'bg-rose-600 text-white border-rose-300' },
+      loud:    { icon: '❗', scale: 1.4,  classes: 'bg-amber-300 text-slate-950 border-amber-500' },
+      whisper: { icon: '…',  scale: 0.92, classes: 'bg-white/90 text-slate-700 border-slate-300 italic' }
+    };
+
+    function pickThoughtStyle() {
+      const roll = Math.random() * 100;
+      const loudChance = 8 + state.adhdLevel * 0.22;
+      if (roll < loudChance) return 'loud';
+      if (roll < loudChance + 34) return 'urgent';
+      if (roll < loudChance + 50) return 'whisper';
+      return 'normal';
+    }
+
+    // Soft "pop" when a thought appears (only if sound is on)
+    function playThoughtPop(styleName) {
+      if (!audioCtx || !state.audioEnabled || isQuizFinished) return;
+      try {
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        const high = styleName === 'loud' ? 1100 : 820;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(high, t);
+        osc.frequency.exponentialRampToValueAtTime(220, t + 0.08);
+        g.gain.setValueAtTime(styleName === 'whisper' ? 0.025 : 0.06, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.11);
+      } catch (e) {}
+    }
+
+    function createThought() {
+      const container = document.getElementById('thoughtCloudLayer');
+      if (!container || !isQuizStarted || isQuizFinished) return;
+      // Keep the screen busy but never completely buried
+      if (container.children.length >= 5) container.firstElementChild.remove();
+
+      const pool = Math.random() * 100 < state.tactileLevel * 0.5 ? bodyThoughts : intrusiveThoughtsList;
+      let thought = pool[Math.floor(Math.random() * pool.length)];
+      let styleName = pickThoughtStyle();
+      if (Math.random() < (state.adhdLevel / 100) * 0.4 && triggerMemorySlip()) {
+        thought = "Wait... what was that number?";
+        styleName = 'loud';
+      }
+      const look = thoughtStyles[styleName];
+
+      const bubble = document.createElement('div');
+      bubble.className = 'thought-bubble absolute pointer-events-none select-none z-30';
+      // Most thoughts land on the chalkboard, right where attention is needed
+      const overBoard = Math.random() < 0.6;
+      bubble.style.left = `${overBoard ? 20 + Math.random() * 32 : 6 + Math.random() * 58}%`;
+      bubble.style.top = `${overBoard ? 24 + Math.random() * 30 : 16 + Math.random() * 58}%`;
+      bubble.style.maxWidth = '72%';
+
+      const inner = document.createElement('div');
+      inner.className = `thought-inner rounded-2xl font-extrabold shadow-2xl border-2 flex items-center ${look.classes}`;
+      inner.style.setProperty('--tilt', `${(Math.random() * 10 - 5).toFixed(1)}deg`);
+      inner.style.fontSize = `calc(var(--thought-size, 12px) * ${look.scale})`;
+      inner.style.padding = '0.5em 1em';
+      inner.style.gap = '0.45em';
+      inner.style.animationDelay = `${(-Math.random()).toFixed(2)}s`;
+
+      const icon = document.createElement('span');
+      icon.textContent = look.icon;
+      const text = document.createElement('span');
+      text.textContent = thought;
+      inner.append(icon, text);
+      bubble.appendChild(inner);
+      container.appendChild(bubble);
+
+      // Keep the whole thought inside the scene on small screens
+      const maxLeft = container.clientWidth - bubble.offsetWidth - 8;
+      if (bubble.offsetLeft > maxLeft) bubble.style.left = `${Math.max(8, maxLeft)}px`;
+
+      playThoughtPop(styleName);
+      setTimeout(() => bubble.remove(), 3400);
+    }
+
+    function spawnThought() {
+      // Only trigger thought bubbles if the quiz has actually been started!
+      if (!isQuizStarted) return;
+      if (Math.random() * 100 > state.adhdLevel) return;
+      createThought();
+      // At high levels, thoughts sometimes arrive in pairs
+      if (state.adhdLevel >= 70 && Math.random() < 0.35) {
+        setTimeout(createThought, 260);
+      }
+    }
+
+    // Re-reads the dial every time, so changes apply during the quiz
+    function startThoughtFlooding() {
+      stopThoughtFlooding();
+      const tick = () => {
+        spawnThought();
+        thoughtTimer = setTimeout(tick, 1500 - state.adhdLevel * 11);
+      };
+      thoughtTimer = setTimeout(tick, 1500 - state.adhdLevel * 11);
+    }
+
+    function applyPreset(preset) {
+      initAudio();
+      if (preset === 'meltdown') {
+        state.soundLevel = 95;
+        state.lightLevel = 90;
+        state.adhdLevel = 80;
+        state.tactileLevel = 85;
+      } else if (preset === 'adhd_storm') {
+        state.soundLevel = 45;
+        state.lightLevel = 35;
+        state.adhdLevel = 100;
+        state.tactileLevel = 60;
+      } else if (preset === 'flicker_headache') {
+        state.soundLevel = 40;
+        state.lightLevel = 95;
+        state.adhdLevel = 50;
+        state.tactileLevel = 30;
+      } else if (preset === 'calm') {
+        state.soundLevel = 15;
+        state.lightLevel = 15;
+        state.adhdLevel = 20;
+        state.tactileLevel = 10;
+      }
+
+      syncDials();
+    }
+
+    function syncDials() {
+      document.getElementById('soundInput').value = state.soundLevel;
+      document.getElementById('lightInput').value = state.lightLevel;
+      document.getElementById('adhdInput').value = state.adhdLevel;
+      document.getElementById('tactileInput').value = state.tactileLevel;
+
+      document.getElementById('soundValLabel').innerText = `${state.soundLevel}%`;
+      document.getElementById('lightValLabel').innerText = `${state.lightLevel}%`;
+      document.getElementById('adhdValLabel').innerText = `${state.adhdLevel}%`;
+      document.getElementById('tactileValLabel').innerText = `${state.tactileLevel}%`;
+
+      updateVisualDistortions();
+    }
+
+    // The wall clock shows the visitor's real local time
+    function updateWallClock() {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes() + seconds / 60;
+      const hours = (now.getHours() % 12) + minutes / 60;
+
+      document.getElementById('clockSecondHand').setAttribute('transform', `rotate(${seconds * 6} 30 30)`);
+      document.getElementById('clockMinuteHand').setAttribute('transform', `rotate(${minutes * 6} 30 30)`);
+      document.getElementById('clockHourHand').setAttribute('transform', `rotate(${hours * 30} 30 30)`);
+
+      setTimeout(updateWallClock, 1000 - now.getMilliseconds());
+    }
+
+    // On narrow screens, zoom the scene so the whole chalkboard stays visible
+    function fitClassroomScene() {
+      const sceneWidth = document.getElementById('simStageViewport').clientWidth;
+      const thoughtSize = Math.min(30, Math.max(12, sceneWidth / 60));
+      document.getElementById('thoughtCloudLayer').style.setProperty('--thought-size', `${thoughtSize.toFixed(1)}px`);
+      const svg = document.getElementById('classroomSvg');
+      const narrow = document.getElementById('simStageViewport').clientWidth < 560;
+      svg.setAttribute('viewBox', narrow ? '240 20 520 640' : '0 0 1000 650');
+      svg.setAttribute('preserveAspectRatio', narrow ? 'xMidYMid meet' : 'xMidYMid slice');
+    }
+
+    window.addEventListener('resize', fitClassroomScene);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshIcons();
+      fitClassroomScene();
+      updateWallClock();
+      renderQuiz();
+      updateVisualDistortions();
+
+      document.getElementById('soundInput').addEventListener('input', (e) => {
+        initAudio();
+        state.soundLevel = parseInt(e.target.value);
+        document.getElementById('soundValLabel').innerText = `${state.soundLevel}%`;
+        updateVisualDistortions();
+      });
+
+      document.getElementById('lightInput').addEventListener('input', (e) => {
+        initAudio();
+        state.lightLevel = parseInt(e.target.value);
+        document.getElementById('lightValLabel').innerText = `${state.lightLevel}%`;
+        updateVisualDistortions();
+      });
+
+      document.getElementById('adhdInput').addEventListener('input', (e) => {
+        initAudio();
+        state.adhdLevel = parseInt(e.target.value);
+        document.getElementById('adhdValLabel').innerText = `${state.adhdLevel}%`;
+        updateVisualDistortions();
+      });
+
+      document.getElementById('tactileInput').addEventListener('input', (e) => {
+        initAudio();
+        state.tactileLevel = parseInt(e.target.value);
+        document.getElementById('tactileValLabel').innerText = `${state.tactileLevel}%`;
+        updateVisualDistortions();
+      });
+
+      document.getElementById('masterAudioBtn').addEventListener('click', () => {
+        state.audioEnabled = !state.audioEnabled;
+        const icon = document.getElementById('masterAudioIcon');
+        const text = document.getElementById('masterAudioText');
+
+        if (state.audioEnabled) {
+          initAudio();
+          if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+          icon.setAttribute('data-lucide', 'volume-2');
+          icon.setAttribute('class', 'w-4 h-4 text-rose-600');
+          text.innerText = 'Sound: On';
+        } else {
+          icon.setAttribute('data-lucide', 'volume-x');
+          icon.setAttribute('class', 'w-4 h-4 text-slate-400');
+          text.innerText = 'Sound: Off';
+        }
+        updateAudioLevels();
+        refreshIcons();
+      });
+
+      document.getElementById('studentNameInput').addEventListener('input', updateStudentName);
+      document.getElementById('studentNameInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') beginSelectedQuiz();
+      });
+
+      document.getElementById('gradeSelect').addEventListener('change', (e) => {
+        if (e.target.value) document.getElementById('gradeError').classList.add('hidden');
+      });
+
+      document.getElementById('timeLimitSelect').addEventListener('change', (e) => {
+        questionTimeLimit = parseInt(e.target.value, 10);
+        updateClockVisuals(questionTimeLimit);
+        document.getElementById('quizClockMiniDisplay').textContent = questionTimeLimit || '–';
+      });
+
+      document.getElementById('calmResetBtn').addEventListener('click', () => {
+        applyPreset('calm');
+      });
+
+    });
+  </script>
+</body>
+</html>
