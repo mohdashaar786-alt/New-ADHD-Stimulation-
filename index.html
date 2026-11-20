@@ -203,6 +203,11 @@
           <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
           <span class="sr-only lg:not-sr-only">Calm Baseline</span>
         </button>
+
+        <button id="hyperfocusBtn" onclick="toggleHyperfocus()" aria-pressed="false" title="Hyperfocus: blur everything except what your pointer is on" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-xs font-bold text-indigo-800 transition">
+          <i data-lucide="scan-eye" class="w-4 h-4 text-indigo-600"></i>
+          <span id="hyperfocusText" class="sr-only lg:not-sr-only">Hyperfocus</span>
+        </button>
       </div>
     </div>
   </header>
@@ -458,7 +463,7 @@
           </g>
 
           <!-- CLASSROOM WINDOW -->
-          <g transform="translate(30, 135)" filter="url(#realisticShadow)">
+          <g id="focusWindow" transform="translate(30, 135)" filter="url(#realisticShadow)">
             <defs>
               <linearGradient id="winSky" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#A9CBDD" />
@@ -633,7 +638,7 @@
               <path d="M 108 169 C 104 174 104 176 106 180" stroke="#4A382B" stroke-width="1.2" fill="none" />
 
               <!-- Cardinal -->
-              <g transform="translate(-11, 0)">
+              <g id="focusBird" transform="translate(-11, 0)">
                 <path d="M 123 141 L 99 150 L 101 155 L 124 148 Z" fill="#6C151B" />
                 <path d="M 124 144 L 100 157 L 104 161 L 127 151 Z" fill="#8F1A20" />
                 <path d="M 126 147 L 106 163 L 110 166 L 130 153 Z" fill="#B02226" />
@@ -682,7 +687,7 @@
           </g>
 
           <!-- THE LARGE WOOD-FRAMED CHALKBOARD (DYNAMIC CHALK ART TARGET) -->
-          <g transform="translate(245, 125)" filter="url(#realisticShadow)">
+          <g id="focusBoard" transform="translate(245, 125)" filter="url(#realisticShadow)">
             <rect x="0" y="0" width="510" height="300" rx="7" fill="url(#oakFrame)" stroke="#3a1d08" stroke-width="2.5" />
             <rect x="8" y="8" width="494" height="284" rx="4" fill="none" stroke="#ffe0b2" stroke-width="1.5" opacity="0.6" />
 
@@ -711,7 +716,7 @@
           </g>
 
           <!-- MINIMAL WALL CLOCK -->
-          <g transform="translate(797, 149) scale(1.22)" filter="url(#realisticShadow)">
+          <g id="focusClock" transform="translate(797, 149) scale(1.22)" filter="url(#realisticShadow)">
             <circle cx="30" cy="30" r="43.5" fill="#FBFBF9" stroke="#20282D" stroke-width="2" />
             <g stroke="#20282D" stroke-width="1.3" stroke-linecap="round">
               <line x1="30.00" y1="-3.00" x2="30.00" y2="-8.00" />
@@ -770,7 +775,7 @@
             </g>
 
             <!-- Digital desk timer, clear of the worksheet -->
-            <g transform="translate(78, 20)" filter="url(#deskShadow)">
+            <g id="focusDeskTimer" transform="translate(78, 20)" filter="url(#deskShadow)">
               <rect x="8" y="42" width="14" height="4" rx="1.5" fill="#11171A" />
               <rect x="70" y="42" width="14" height="4" rx="1.5" fill="#11171A" />
               <rect x="0" y="0" width="92" height="44" rx="6" fill="#20282D" stroke="#3D464B" stroke-width="1" />
@@ -779,7 +784,7 @@
             </g>
 
             <!-- Pencil -->
-            <g transform="translate(710, 46) rotate(6)" filter="url(#deskShadow)">
+            <g id="focusPencil" transform="translate(710, 46) rotate(6)" filter="url(#deskShadow)">
               <rect x="0" y="0" width="115" height="4" fill="#3b82f6" />
               <rect x="0" y="4" width="115" height="4" fill="#2563eb" />
               <rect x="0" y="8" width="115" height="3" fill="#1d4ed8" />
@@ -808,6 +813,10 @@
 
         <!-- 4. ADHD INTRUSIVE THOUGHT FLOODING LAYER -->
         <div id="thoughtCloudLayer" aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden z-30"></div>
+
+        <!-- Hyperfocus: everything outside the spotlight is blurred -->
+        <div id="hyperfocusLayer" aria-hidden="true" class="hidden absolute inset-0 pointer-events-none z-[35]"></div>
+        <div id="hyperfocusLabel" aria-hidden="true" class="hidden absolute pointer-events-none z-[36] px-3 py-1.5 rounded-xl bg-indigo-950/90 text-white text-xs font-bold shadow-xl whitespace-nowrap"></div>
 
         <!-- 5. QUIZ START OVERLAY (SHOWN BEFORE STARTING) -->
         <div id="quizStartOverlay" class="absolute inset-0 z-[45] bg-slate-950/75 backdrop-blur-sm flex flex-col items-center p-4 sm:p-6 text-center text-white overflow-y-auto transition-opacity duration-300">
@@ -943,6 +952,11 @@
             <!-- Calm control stays reachable in fullscreen -->
             <button onclick="applyPreset('calm')" title="Calm everything down" aria-label="Calm everything down" class="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 transition">
               <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            </button>
+
+            <!-- Hyperfocus control stays reachable in fullscreen -->
+            <button id="hyperfocusHudBtn" onclick="toggleHyperfocus()" aria-pressed="false" title="Hyperfocus" aria-label="Toggle hyperfocus" class="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 transition">
+              <i data-lucide="scan-eye" class="w-4 h-4 text-indigo-600"></i>
             </button>
 
             <!-- Viewport Fullscreen Toggle Button -->
@@ -1116,6 +1130,10 @@
         <div>
           <strong class="text-slate-800">Overload:</strong>
           The meter and its levels are invented for this demonstration. They don't measure anything in a real person.
+        </div>
+        <div>
+          <strong class="text-slate-800">Hyperfocus:</strong>
+          ADHD can also mean getting so absorbed in one thing that everything else fades, even when it isn't what you need to focus on. Turn on Hyperfocus and move your pointer over the room.
         </div>
       </div>
 
@@ -2276,6 +2294,138 @@
       updateVisualDistortions();
     }
 
+
+    // ---------------- Hyperfocus ----------------
+    const focusTargets = [
+      { id: 'focusBird', label: "Hyperfocus: the cardinal's feathers", sound: 'bird' },
+      { id: 'focusClock', label: 'Hyperfocus: the second hand', sound: 'clock' },
+      { id: 'focusPencil', label: 'Hyperfocus: tap, tap, tap…', sound: 'pencil' },
+      { id: 'focusDeskTimer', label: 'Hyperfocus: the countdown', sound: 'timer' },
+      { id: 'focusWindow', label: 'Hyperfocus: the trees outside', sound: null },
+      { id: 'focusBoard', label: 'Back on the question', sound: null }
+    ];
+    const hf = {
+      on: false, x: 0, y: 0, rx: 90, ry: 90,
+      target: { x: 0, y: 0, rx: 90, ry: 90 },
+      locked: null, frame: null, soundTimer: null, lastBirdSong: 0
+    };
+
+    function hyperfocusSound(kind) {
+      if (!audioCtx || !state.audioEnabled || state.soundLevel <= 0) return;
+      const level = 0.4 + state.soundLevel / 100;
+      if (kind === 'clock') playBeep(1900, 0.03, 0.09 * level);
+      if (kind === 'timer') playBeep(1250, 0.05, 0.06 * level);
+      if (kind === 'pencil') [0, 0.14, 0.28].forEach(d => setTimeout(() => playBeep(300, 0.025, 0.11 * level), d * 1000));
+      if (kind === 'bird' && birdGain && performance.now() - hf.lastBirdSong > 4500) {
+        hf.lastBirdSong = performance.now();
+        const start = audioCtx.currentTime + 0.03;
+        birdGain.gain.setTargetAtTime(Math.min(1.6, level * 1.1), audioCtx.currentTime, 0.05);
+        [0, 0.42, 0.84].forEach(o => playBirdNote(start + o, 3900, 1900, 0.34, 0.11));
+        [1.3, 1.48, 1.66, 1.84].forEach(o => { playBirdNote(start + o, 2100, 3300, 0.08, 0.09); playBirdNote(start + o + 0.08, 3300, 2300, 0.08, 0.08); });
+        setTimeout(updateAudioLevels, 2300);
+      }
+    }
+
+    function setFocusSound(kind) {
+      clearInterval(hf.soundTimer);
+      hf.soundTimer = null;
+      if (!kind) return;
+      hyperfocusSound(kind);
+      const every = { clock: 1000, timer: 1000, pencil: 1200, bird: 1000 }[kind];
+      hf.soundTimer = setInterval(() => hyperfocusSound(kind), every);
+    }
+
+    function aimHyperfocus(clientX, clientY) {
+      const stage = document.getElementById('simStageViewport').getBoundingClientRect();
+      const px = clientX - stage.left;
+      const py = clientY - stage.top;
+      let hit = null;
+      for (const t of focusTargets) {
+        const el = document.getElementById(t.id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width < 4) continue;
+        if (clientX >= r.left - 6 && clientX <= r.right + 6 && clientY >= r.top - 6 && clientY <= r.bottom + 6) {
+          hit = { t, r };
+          break;
+        }
+      }
+      if (hit) {
+        hf.target = {
+          x: hit.r.left - stage.left + hit.r.width / 2,
+          y: hit.r.top - stage.top + hit.r.height / 2,
+          rx: hit.r.width * 0.72 + 14,
+          ry: hit.r.height * 0.72 + 14
+        };
+      } else {
+        const size = Math.max(70, stage.width / 11);
+        hf.target = { x: px, y: py, rx: size, ry: size };
+      }
+      const lockedId = hit ? hit.t.id : null;
+      if (lockedId !== hf.locked) {
+        hf.locked = lockedId;
+        const label = document.getElementById('hyperfocusLabel');
+        label.textContent = hit ? hit.t.label : '';
+        label.classList.toggle('hidden', !hit);
+        setFocusSound(hit ? hit.t.sound : null);
+      }
+    }
+
+    function drawHyperfocus() {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const k = reduce ? 1 : 0.22;
+      for (const key of ['x', 'y', 'rx', 'ry']) hf[key] += (hf.target[key] - hf[key]) * k;
+      const layer = document.getElementById('hyperfocusLayer');
+      const mask = `radial-gradient(${hf.rx.toFixed(1)}px ${hf.ry.toFixed(1)}px at ${hf.x.toFixed(1)}px ${hf.y.toFixed(1)}px, transparent 0, transparent 72%, black 100%)`;
+      layer.style.webkitMaskImage = mask;
+      layer.style.maskImage = mask;
+      const label = document.getElementById('hyperfocusLabel');
+      if (!label.classList.contains('hidden')) {
+        const stageW = document.getElementById('simStageViewport').clientWidth;
+        const half = label.offsetWidth / 2;
+        const left = Math.min(stageW - half - 8, Math.max(half + 8, hf.x));
+        label.style.left = `${left - half}px`;
+        label.style.top = `${Math.max(84, hf.y - hf.ry - 34)}px`;
+      }
+      hf.frame = hf.on ? requestAnimationFrame(drawHyperfocus) : null;
+    }
+
+    function toggleHyperfocus(force) {
+      hf.on = typeof force === 'boolean' ? force : !hf.on;
+      const layer = document.getElementById('hyperfocusLayer');
+      layer.classList.toggle('hidden', !hf.on);
+      for (const id of ['hyperfocusBtn', 'hyperfocusHudBtn']) {
+        const btn = document.getElementById(id);
+        btn.setAttribute('aria-pressed', String(hf.on));
+        btn.classList.toggle('ring-2', hf.on);
+        btn.classList.toggle('ring-indigo-500', hf.on);
+      }
+      document.getElementById('hyperfocusText').textContent = hf.on ? 'Hyperfocus: On' : 'Hyperfocus';
+      if (hf.on) {
+        const stage = document.getElementById('simStageViewport');
+        const w = stage.clientWidth;
+        hf.target = { x: w / 2, y: stage.clientHeight / 2, rx: Math.max(70, w / 11), ry: Math.max(70, w / 11) };
+        Object.assign(hf, hf.target);
+        if (!hf.frame) hf.frame = requestAnimationFrame(drawHyperfocus);
+      } else {
+        hf.locked = null;
+        setFocusSound(null);
+        document.getElementById('hyperfocusLabel').classList.add('hidden');
+      }
+    }
+
+    function initHyperfocus() {
+      const stage = document.getElementById('simStageViewport');
+      const follow = e => { if (hf.on) aimHyperfocus(e.clientX, e.clientY); };
+      stage.addEventListener('pointermove', follow);
+      stage.addEventListener('pointerdown', follow);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && hf.on && !document.fullscreenElement) toggleHyperfocus(false);
+      });
+      document.getElementById('hyperfocusLayer').style.backdropFilter = 'blur(7px) brightness(0.68) saturate(0.8)';
+      document.getElementById('hyperfocusLayer').style.webkitBackdropFilter = 'blur(7px) brightness(0.68) saturate(0.8)';
+    }
+
     // The wall clock shows the visitor's real local time
     function updateWallClock() {
       const now = new Date();
@@ -2307,6 +2457,7 @@
       refreshIcons();
       fitClassroomScene();
       updateWallClock();
+      initHyperfocus();
       renderQuiz();
       updateVisualDistortions();
 
