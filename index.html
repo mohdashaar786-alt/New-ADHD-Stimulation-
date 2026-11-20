@@ -1779,7 +1779,7 @@
 
         // Clock tick follows the background noise dial
         if (secondsRemaining > 0 && state.soundLevel > 0) {
-          playBeep(1900, 0.02, 0.01 + (state.soundLevel / 100) * 0.05);
+          playQuartzTick(0.06 + (state.soundLevel / 100) * 0.3);
         }
 
         // Ticking audio cue when under 4 seconds
@@ -2013,6 +2013,34 @@
         g.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // Quiet quartz clock: a tiny filtered click instead of a beep
+    let tickNoise = null;
+    function playQuartzTick(volume = 0.2) {
+      if (!audioCtx || !state.audioEnabled) return;
+      try {
+        if (!tickNoise) {
+          tickNoise = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.05), audioCtx.sampleRate);
+          const data = tickNoise.getChannelData(0);
+          for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        }
+        const t = audioCtx.currentTime;
+        const src = audioCtx.createBufferSource();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+        src.buffer = tickNoise;
+        filter.type = 'bandpass';
+        filter.frequency.value = 4200;
+        filter.Q.value = 10;
+        gain.gain.setValueAtTime(volume, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.012);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        src.start(t);
+        src.stop(t + 0.03);
       } catch (e) {}
     }
 
@@ -2313,7 +2341,7 @@
     function hyperfocusSound(kind) {
       if (!audioCtx || !state.audioEnabled || state.soundLevel <= 0) return;
       const level = 0.4 + state.soundLevel / 100;
-      if (kind === 'clock') playBeep(1900, 0.03, 0.09 * level);
+      if (kind === 'clock') playQuartzTick(0.45 * level);
       if (kind === 'timer') playBeep(1250, 0.05, 0.06 * level);
       if (kind === 'pencil') [0, 0.14, 0.28].forEach(d => setTimeout(() => playBeep(300, 0.025, 0.11 * level), d * 1000));
       if (kind === 'bird' && birdGain && performance.now() - hf.lastBirdSong > 4500) {
