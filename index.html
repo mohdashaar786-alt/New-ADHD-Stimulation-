@@ -357,7 +357,7 @@
     <div class="lg:col-span-8 flex flex-col gap-4">
 
       <!-- POLISHED VECTOR-RENDERED CLASSROOM VIEWPORT -->
-      <div id="simStageViewport" class="relative overflow-hidden rounded-2xl border-2 border-slate-900 bg-slate-900 h-[660px] xl:h-[560px] flex flex-col justify-between shadow-2xl transition-all select-none">
+      <div id="simStageViewport" class="relative overflow-hidden rounded-2xl border-2 border-slate-900 bg-slate-900 h-[660px] xl:h-[612px] flex flex-col justify-between shadow-2xl transition-all select-none">
 
         <!-- 1. HIGH-PRECISION CLASSROOM VECTOR SCENE (SVG) -->
         <svg id="classroomSvg" role="img" aria-label="A classroom with a chalkboard showing the current math question, a wall clock, a window, and a desk with a worksheet." class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -823,12 +823,12 @@
 
         <!-- 5. QUIZ START OVERLAY (SHOWN BEFORE STARTING) -->
         <div id="quizStartOverlay" class="absolute inset-0 z-[45] bg-slate-950/75 backdrop-blur-sm flex flex-col items-center p-4 sm:p-6 text-center text-white overflow-y-auto transition-opacity duration-300">
-          <div class="my-auto max-w-md bg-white text-slate-900 rounded-3xl p-6 sm:p-7 shadow-2xl border-2 border-slate-200 flex flex-col items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-sm">
+          <div class="my-auto max-w-md bg-white text-slate-900 rounded-3xl p-4 sm:p-7 shadow-2xl border-2 border-slate-200 flex flex-col items-center gap-2.5 sm:gap-4">
+            <div class="hidden sm:flex w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-sm">
               <i data-lucide="timer" class="w-8 h-8"></i>
             </div>
             <div>
-              <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-extrabold uppercase tracking-wider mono-font">10 Questions &bull; Timed</span>
+              <span class="hidden sm:inline px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-extrabold uppercase tracking-wider mono-font">10 Questions &bull; Timed</span>
               <h3 class="text-xl sm:text-2xl font-extrabold heading-font text-slate-950 mt-1.5">Sensory Working Memory Quiz</h3>
               <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
                 You get <strong>10 seconds per question</strong> by default to solve mental arithmetic while glare, background noise, and racing thoughts compete for your attention.
@@ -903,7 +903,7 @@
         </div>
 
         <!-- TOP HUD: DYNAMIC SENSORY LOAD METER & QUIZ PROGRESS -->
-        <div class="relative z-40 m-3 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md flex flex-col xl:flex-row xl:items-center justify-between gap-2 xl:gap-4">
+        <div id="quizHud" class="relative z-[46] m-3 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md flex flex-col xl:flex-row xl:items-center justify-between gap-2 xl:gap-4">
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between gap-2 text-xs font-bold mb-1">
               <span class="flex items-center gap-1.5 text-slate-800">
@@ -1140,7 +1140,7 @@
         </div>
         <div>
           <strong class="text-slate-800">Hyperfocus:</strong>
-          ADHD can also mean getting so absorbed in one thing that everything else fades, even when it isn't what you need to focus on. Turn on Hyperfocus and move your pointer over the room.
+          ADHD can also mean getting so absorbed in one thing that everything else fades, even when it isn't what you need to focus on. Research on hyperfocus is still limited. Turn on Hyperfocus and move your pointer over the room.
         </div>
       </div>
 
@@ -1198,7 +1198,7 @@
         <h2 class="font-bold text-slate-950 text-lg heading-font">Sources</h2>
         <ul class="list-disc pl-5 space-y-1">
           <li><a class="underline hover:text-slate-950" href="https://www.autism.org.uk/advice-and-guidance/behaviour/meltdowns/all-audiences">National Autistic Society: Meltdowns</a></li>
-          <li><a class="underline hover:text-slate-950" href="https://www.autism.org.uk/advice-and-guidance/professional-practice/adjustments-sensory">National Autistic Society: Adjustments for sensory differences</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://www.autism.org.uk/learn/knowledge-hub/professional-practice/adjustments-sensory">National Autistic Society: Adjustments for sensory differences</a></li>
           <li><a class="underline hover:text-slate-950" href="https://www.leicspart.nhs.uk/autism-space/education/sensory-processing-issues-in-school/">NHS Leicestershire: Sensory processing in school</a></li>
           <li><a class="underline hover:text-slate-950" href="https://www.locala.org.uk/fileadmin/Environmental_Sensory_Audit_and_Checklist_for_Schools_and_Classrooms.pdf">Locala: Environmental sensory audit for schools</a></li>
           <li><a class="underline hover:text-slate-950" href="https://www.cdc.gov/adhd/treatment/classroom.html">CDC: ADHD in the classroom</a></li>
@@ -1206,6 +1206,8 @@
           <li><a class="underline hover:text-slate-950" href="https://www.mdpi.com/2076-3425/16/1/53">Sensory phenotypes in autism: review (2026)</a></li>
           <li><a class="underline hover:text-slate-950" href="https://www.frontiersin.org/journals/psychiatry/articles/10.3389/fpsyt.2024.1492126/full">The dopamine hypothesis for ADHD: review (2024)</a></li>
           <li><a class="underline hover:text-slate-950" href="https://www.energy.gov/sites/default/files/2024-05/ssl-veitch-miller-2024-leukos_tlm.pdf">U.S. Department of Energy: Light modulation research</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://doi.org/10.1177/096032718902100102">Wilkins et al.: Fluorescent lighting, headaches and eyestrain (1989)</a></li>
+          <li><a class="underline hover:text-slate-950" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7851038/">Ashinoff and Abu-Akel: Hyperfocus, the forgotten frontier of attention (2019)</a></li>
           <li><a class="underline hover:text-slate-950" href="https://experts.umn.edu/en/publications/meta-analysis-of-disability-simulation-research/">Meta-analysis of disability simulation research (2007)</a></li>
           <li><a class="underline hover:text-slate-950" href="https://deiteaching.nursing.uw.edu/crip-for-a-day-the-unintended-negative-consequences-of-disability-simulations/">Nario-Redmond et al.: Effects of disability simulations (2017)</a></li>
         </ul>
@@ -1269,7 +1271,7 @@
           return { board: `${a} × ${b} = ?`, prompt: `What is ${a} × ${b}?`, answer: c, calc: `${a}*${b}`, traps: [c + b, c - b, c + 10], hint: `10 × ${b} = ${10 * b}, ${a - 10} × ${b} = ${(a - 10) * b}, total ${c}` }; },
         () => { const b = rand(3, 12), c = rand(11, 19), a = b * c;
           return { board: `${a} ÷ ${b} = ?`, prompt: `What is ${a} ÷ ${b}?`, answer: c, calc: `${a}/${b}`, traps: [c + 1, c - 1, c + 2], hint: `${b} × ${c} = ${a}, so the answer is ${c}` }; },
-        () => { const d = pick([2, 3, 4, 5]), n = rand(1, d - 1), w = d * rand(3, 12), c = (w / d) * n;
+        () => { const d = pick([2, 3, 4, 5, 6, 8, 10]), n = pick([...Array(d - 1).keys()].map(k => k + 1).filter(k => { let a = k, b = d; while (b) [a, b] = [b, a % b]; return a === 1; })), w = d * rand(3, 12), c = (w / d) * n;
           return { board: `${n}/${d} of ${w} = ?`, prompt: `What is ${n}/${d} of ${w}?`, answer: c, calc: `${w}*${n}/${d}`, traps: [w / d, c + w / d, c + 1], hint: `${w} ÷ ${d} = ${w / d}, then × ${n} = ${c}` }; },
         () => { const p = pick([10, 20, 25, 50]), w = (100 / p) * rand(2, 12), c = (w * p) / 100;
           return { board: `${p}% of ${w} = ?`, prompt: `What is ${p}% of ${w}?`, answer: c, calc: `${w}*${p}/100`, traps: [c * 2, c + 5, c + 1], hint: `${p}% is 1/${100 / p}: ${w} ÷ ${100 / p} = ${c}` }; },
@@ -2576,6 +2578,13 @@
 
     // On narrow screens, zoom the scene so the whole chalkboard stays visible
     function fitClassroomScene() {
+      // Keep the start and results screens clear of the top bar
+      const hud = document.getElementById('quizHud');
+      if (hud) {
+        const clear = `${hud.offsetTop + hud.offsetHeight + 12}px`;
+        document.getElementById('quizStartOverlay').style.paddingTop = clear;
+        document.getElementById('quizResultsOverlay').style.paddingTop = clear;
+      }
       const sceneWidth = document.getElementById('simStageViewport').clientWidth;
       const thoughtSize = Math.min(30, Math.max(12, sceneWidth / 60));
       document.getElementById('thoughtCloudLayer').style.setProperty('--thought-size', `${thoughtSize.toFixed(1)}px`);
