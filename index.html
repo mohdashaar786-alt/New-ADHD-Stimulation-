@@ -814,6 +814,9 @@
         <!-- 4. ADHD INTRUSIVE THOUGHT FLOODING LAYER -->
         <div id="thoughtCloudLayer" aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden z-30"></div>
 
+        <!-- Teacher's voice caption -->
+        <div id="teacherCaption" aria-hidden="true" class="hidden absolute left-1/2 -translate-x-1/2 bottom-48 xl:bottom-[8.5rem] z-[32] max-w-[86%] px-4 py-2 rounded-2xl bg-white/95 border-2 border-indigo-200 shadow-xl text-sm font-bold text-slate-900 pointer-events-none text-center"></div>
+
         <!-- Hyperfocus: everything outside the spotlight is blurred -->
         <div id="hyperfocusLayer" aria-hidden="true" class="hidden absolute inset-0 pointer-events-none z-[35]"></div>
         <div id="hyperfocusLabel" aria-hidden="true" class="hidden absolute pointer-events-none z-[36] px-3 py-1.5 rounded-xl bg-indigo-950/90 text-white text-xs font-bold shadow-xl whitespace-nowrap"></div>
@@ -831,7 +834,7 @@
                 You get <strong>10 seconds per question</strong> by default to solve mental arithmetic while glare, background noise, and racing thoughts compete for your attention.
               </p>
               <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-                Sound is off. If you turn it on at the top of the page, keep your volume low: it includes a hum, static, bird song, and a high-pitched tone.
+                Sound is off. If you turn it on at the top of the page, keep your volume low: it includes a hum, static, bird song, a high-pitched tone, and the teacher's voice.
               </p>
             </div>
             <div class="w-full flex items-center justify-center gap-2 text-sm">
@@ -1044,6 +1047,10 @@
           </div>
           <input type="range" id="soundInput" min="0" max="100" value="50" class="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-rose-600" />
           <p class="text-xs text-slate-500">Controls the hum, static, clock ticking, and bird song when sound is on.</p>
+          <label for="teacherVoiceToggle" class="mt-2 flex items-start gap-2 text-xs text-slate-700 cursor-pointer">
+            <input id="teacherVoiceToggle" type="checkbox" checked class="mt-0.5 w-4 h-4 accent-indigo-600" />
+            <span><strong class="text-slate-800">Teacher's voice:</strong> the teacher reads each question aloud and talks to the class while you work. Needs sound on.</span>
+          </label>
         </div>
 
         <!-- 3. ADHD Intrusive Thought Flooding -->
@@ -1437,6 +1444,7 @@
 
     function renderQuiz() {
       const q = quizDatabase[currentQuizIndex];
+      setTimeout(teacherReadQuestion, 350);
 
       clearMemorySlip();
       showProblem(q);
@@ -1657,6 +1665,8 @@
       updateVisualDistortions();
       startThoughtFlooding();
       scheduleBirdCall(4000 + Math.random() * 4000);
+      teacher.lastSpoken = -1;
+      scheduleTeacherRemark();
       refreshIcons();
       const firstAnswer = document.querySelector('#optionsContainer button');
       if (firstAnswer) firstAnswer.focus({ preventScroll: true });
@@ -1701,6 +1711,7 @@
     }
 
     function changeGrade() {
+      stopTeacher();
       isQuizStarted = false;
       isQuizFinished = false;
       selectedGrade = null;
@@ -1849,6 +1860,7 @@
       questionTimer = null;
       stopThoughtFlooding();
       stopBirdCalls();
+      stopTeacher();
       clearMemorySlip();
       document.getElementById('thoughtCloudLayer').innerHTML = '';
 
@@ -2323,6 +2335,100 @@
     }
 
 
+
+    // ---------------- Teacher's voice ----------------
+    const teacherRemarks = [
+      'Eyes on the board, please.',
+      'No talking during the quiz.',
+      'Whoever is tapping, please stop.',
+      "Keep going, you're doing fine.",
+      'Check your answer before you move on.',
+      'Sit up straight, everyone.',
+      'Remember to work it out in your head.',
+      'Quiet, please. Some people are still thinking.'
+    ];
+    const teacher = { lastSpoken: -1, remarkTimer: null, captionTimer: null, voice: null };
+
+    function teacherCanSpeak() {
+      return 'speechSynthesis' in window && state.audioEnabled && isQuizStarted && !isQuizFinished &&
+        document.getElementById('teacherVoiceToggle').checked;
+    }
+
+    function pickTeacherVoice() {
+      if (teacher.voice || !('speechSynthesis' in window)) return teacher.voice;
+      const voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+      teacher.voice = voices.find(v => /en-IN/i.test(v.lang)) || voices.find(v => /en-GB/i.test(v.lang)) || voices[0] || null;
+      return teacher.voice;
+    }
+
+    // Turn math symbols into words the speech engine reads correctly
+    function spokenMath(text) {
+      return text
+        .replace(/log base 10 of/gi, 'log base ten of')
+        .replace(/(\d+)\/(\d+) of/g, '$1 over $2 of')
+        .replace(/x\/(\d+)/g, 'x over $1')
+        .replace(/(^|[\s(])-(\d)/g, '$1negative $2')
+        .replace(/×/g, ' times ')
+        .replace(/÷/g, ' divided by ')
+        .replace(/ - /g, ' minus ')
+        .replace(/\+/g, ' plus ')
+        .replace(/ = /g, ' equals ')
+        .replace(/%/g, ' percent')
+        .replace(/ : /g, ' to ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function showTeacherCaption(text) {
+      const caption = document.getElementById('teacherCaption');
+      caption.textContent = `👩‍🏫 ${text}`;
+      caption.classList.remove('hidden');
+      clearTimeout(teacher.captionTimer);
+      teacher.captionTimer = setTimeout(() => caption.classList.add('hidden'), 4200);
+    }
+
+    function teacherSay(text, spoken = text) {
+      if (!teacherCanSpeak()) return false;
+      try {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(spoken);
+        const voice = pickTeacherVoice();
+        if (voice) u.voice = voice;
+        u.lang = voice ? voice.lang : 'en-US';
+        u.rate = 0.95;
+        u.volume = 0.9;
+        speechSynthesis.speak(u);
+      } catch (e) {}
+      showTeacherCaption(text);
+      return true;
+    }
+
+    function teacherReadQuestion() {
+      if (!teacherCanSpeak() || userAnswers[currentQuizIndex]) return;
+      if (teacher.lastSpoken === currentQuizIndex) return;
+      const q = quizDatabase[currentQuizIndex];
+      if (teacherSay(q.prompt, spokenMath(q.prompt))) teacher.lastSpoken = currentQuizIndex;
+    }
+
+    function scheduleTeacherRemark() {
+      clearTimeout(teacher.remarkTimer);
+      teacher.remarkTimer = setTimeout(() => {
+        // Don't talk over the question being read out
+        if (teacherCanSpeak() && !speechSynthesis.speaking) {
+          teacherSay(teacherRemarks[Math.floor(Math.random() * teacherRemarks.length)]);
+        }
+        scheduleTeacherRemark();
+      }, 14000 + Math.random() * 10000);
+    }
+
+    function stopTeacher() {
+      clearTimeout(teacher.remarkTimer);
+      teacher.remarkTimer = null;
+      clearTimeout(teacher.captionTimer);
+      document.getElementById('teacherCaption').classList.add('hidden');
+      try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
+    }
+
     // ---------------- Hyperfocus ----------------
     const focusTargets = [
       { id: 'focusBird', label: "Hyperfocus: the cardinal's feathers", sound: 'bird' },
@@ -2528,14 +2634,31 @@
           icon.setAttribute('data-lucide', 'volume-2');
           icon.setAttribute('class', 'w-4 h-4 text-rose-600');
           text.innerText = 'Sound: On';
+          teacher.lastSpoken = -1;
+          setTimeout(teacherReadQuestion, 300);
         } else {
           icon.setAttribute('data-lucide', 'volume-x');
           icon.setAttribute('class', 'w-4 h-4 text-slate-400');
           text.innerText = 'Sound: Off';
+          stopTeacher();
+          if (isQuizStarted && !isQuizFinished) scheduleTeacherRemark();
         }
         updateAudioLevels();
         refreshIcons();
       });
+
+      document.getElementById('teacherVoiceToggle').addEventListener('change', (e) => {
+        if (e.target.checked) {
+          teacher.lastSpoken = -1;
+          teacherReadQuestion();
+        } else {
+          stopTeacher();
+          if (isQuizStarted && !isQuizFinished) scheduleTeacherRemark();
+        }
+      });
+      if ('speechSynthesis' in window) {
+        speechSynthesis.addEventListener?.('voiceschanged', () => { teacher.voice = null; pickTeacherVoice(); });
+      }
 
       document.getElementById('studentNameInput').addEventListener('input', updateStudentName);
       document.getElementById('studentNameInput').addEventListener('keydown', (e) => {
