@@ -805,6 +805,7 @@
         </svg>
 
         <!-- 2. GLARE OVERLAY -->
+        <div id="tintOverlay" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-700 z-10 bg-amber-700/15 mix-blend-multiply"></div>
         <div id="glareFilterOverlay" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity z-10 bg-amber-200/30 mix-blend-color-burn"></div>
 
         <!-- 3. TUNNEL VISION & MELTDOWN VIGNETTE OVERLAY -->
@@ -914,10 +915,10 @@
 
         <!-- 7. SUPPORT PICKER -->
         <div id="supportOverlay" class="hidden absolute inset-0 z-[45] bg-slate-950/75 backdrop-blur-sm flex flex-col items-center p-4 overflow-y-auto">
-          <div class="my-auto w-full max-w-md bg-white text-slate-900 rounded-3xl p-3.5 sm:p-4 shadow-2xl border-2 border-slate-200 flex flex-col gap-2">
+          <div class="my-auto w-full max-w-md sm:max-w-2xl bg-white text-slate-900 rounded-3xl p-3.5 sm:p-4 shadow-2xl border-2 border-slate-200 flex flex-col gap-2">
             <h3 id="supportHeading" tabindex="-1" class="text-lg font-extrabold heading-font text-slate-950 text-center outline-none">Choose your supports</h3>
             <p class="text-xs text-slate-600 text-center">Pick what would help, then try 10 new questions in the same room.</p>
-            <fieldset class="grid gap-1.5">
+            <fieldset class="grid sm:grid-cols-2 gap-1.5">
               <legend class="sr-only">Supports</legend>
                 <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
                   <input type="checkbox" value="headphones" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
@@ -925,7 +926,15 @@
                 </label>
                 <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
                   <input type="checkbox" value="seat" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
-                  <span><span class="block text-sm font-bold text-slate-900">Seat away from the window and lights</span><span class="block text-[11px] text-slate-600 leading-snug">Glare drops, and the window and bird fade out of view.</span></span>
+                  <span><span class="block text-sm font-bold text-slate-900">Seat away from the window and lights</span><span class="block text-[11px] text-slate-600 leading-snug">Glare drops a little, and the window and bird fade out of view.</span></span>
+                </label>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="lights" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Lights dimmed</span><span class="block text-[11px] text-slate-600 leading-snug">The teacher turns off some ceiling tubes and lets in daylight. Glare drops and stops pulsing.</span></span>
+                </label>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="tint" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Tinted glasses or a cap with a brim</span><span class="block text-[11px] text-slate-600 leading-snug">Bright light looks softer and warmer. Helps some people with light sensitivity, though research on tinted lenses is mixed.</span></span>
                 </label>
                 <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
                   <input type="checkbox" value="move" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
@@ -945,7 +954,7 @@
               <button onclick="closeSupportPicker()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold text-sm transition">Back</button>
               <button onclick="startSupportRound()" class="flex-[2] py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition">Start with support</button>
             </div>
-            <p class="text-xs text-slate-500 text-center leading-relaxed">These supports are simplified. In real life, what helps is different for every child.</p>
+            <p class="text-xs text-slate-500 text-center leading-relaxed sm:max-w-md sm:mx-auto">These supports are simplified. In real life, what helps is different for every child.</p>
           </div>
         </div>
 
@@ -2196,9 +2205,10 @@
       answerRow.style.setProperty('--restless', `${((state.tactileLevel / 100) * 5).toFixed(1)}px`);
       answerRow.classList.toggle('restless-active', isQuizStarted && state.tactileLevel > 20);
 
+      const supportRound = Boolean(baselineDials);
       if (state.lightLevel > 50) {
-        viewport.classList.add('flicker-active');
-        glareOverlay.style.opacity = ((state.lightLevel - 45) / 55).toString();
+        viewport.classList.toggle('flicker-active', !(supportRound && hasSupport('lights')));
+        glareOverlay.style.opacity = (((state.lightLevel - 45) / 55) * (supportRound && hasSupport('tint') ? 0.5 : 1)).toString();
       } else {
         viewport.classList.remove('flicker-active');
         glareOverlay.style.opacity = '0';
@@ -2404,17 +2414,19 @@
     const supportInfo = {
       headphones: { icon: '🎧', label: '🎧 Headphones', phrase: 'noise-cancelling headphones' },
       seat: { icon: '🪑', label: '🪑 Seat away from window', phrase: 'a seat away from the window' },
+      lights: { icon: '💡', label: '💡 Lights dimmed', phrase: 'dimmed lights' },
+      tint: { icon: '🕶️', label: '🕶️ Tinted glasses', phrase: 'tinted glasses' },
       move: { icon: '🏃', label: '🏃 Movement break', phrase: 'a movement break' },
       time: { icon: '⏱️', label: '⏱ Extra time', phrase: 'extra time' },
       notes: { icon: '📝', label: '📝 Written support', phrase: 'written support' }
     };
-    let activeSupports = null;
-    let baselineDials = null;
+    var activeSupports = null;
+    var baselineDials = null;
     let firstResult = null;
 
     const dialKeys = ['soundLevel', 'lightLevel', 'adhdLevel', 'tactileLevel'];
     const copyDials = src => Object.fromEntries(dialKeys.map(k => [k, src[k]]));
-    const hasSupport = key => Boolean(activeSupports && activeSupports.has(key));
+    function hasSupport(key) { return Boolean(activeSupports && activeSupports.has(key)); }
 
     function joinWords(list) {
       if (list.length < 2) return list.join('');
@@ -2452,6 +2464,13 @@
         win.style.filter = on && hasSupport('seat') ? 'blur(5px)' : '';
         win.style.opacity = on && hasSupport('seat') ? '0.5' : '';
       }
+      const dim = on && hasSupport('lights');
+      const tubes = document.getElementById('fluorescentTubesGroup');
+      if (tubes) {
+        tubes.style.opacity = dim ? '0.55' : '';
+        tubes.querySelectorAll('.tube-glowing').forEach(t => { t.style.animationPlayState = dim ? 'paused' : ''; t.style.fill = dim ? '#e2e8f0' : ''; });
+      }
+      document.getElementById('tintOverlay').style.opacity = on && hasSupport('tint') ? '1' : '0';
       const card = document.getElementById('supportCard');
       card.classList.toggle('hidden', !on);
       if (on) {
@@ -2472,7 +2491,11 @@
       if (!baselineDials) baselineDials = copyDials(state);
       Object.assign(state, baselineDials);
       if (hasSupport('headphones')) state.soundLevel = Math.round(state.soundLevel * 0.3);
-      if (hasSupport('seat')) state.lightLevel = Math.round(state.lightLevel * 0.25);
+      let lightFactor = 1;
+      if (hasSupport('seat')) lightFactor *= 0.7;
+      if (hasSupport('lights')) lightFactor *= 0.4;
+      if (hasSupport('tint')) lightFactor *= 0.6;
+      state.lightLevel = Math.round(state.lightLevel * lightFactor);
       if (hasSupport('move')) state.tactileLevel = Math.round(state.tactileLevel * 0.25);
       if (hasSupport('time') && questionTimeLimit > 0) questionTimeLimit *= 2;
       syncDials();
