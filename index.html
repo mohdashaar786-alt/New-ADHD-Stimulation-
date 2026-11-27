@@ -891,15 +891,71 @@
                 <div class="text-xs text-amber-800">Missed</div>
               </div>
             </div>
-            <p class="text-sm text-slate-600 leading-relaxed">
+            <p id="resultLoadNote" class="text-sm text-slate-600 leading-relaxed">
               Your highest sensory load was <strong id="resultPeak">0%</strong>. The room has gone quiet now, and you get to leave it behind. Many children go back to it every day, so the changes around them matter.
             </p>
+            <div id="supportCompare" class="hidden rounded-2xl border-2 border-indigo-200 bg-indigo-50 p-3 text-indigo-950">
+              <div class="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-1 text-xs text-left">
+                <span></span><span class="font-bold text-center">Without support</span><span class="font-bold text-center">With support</span>
+                <span>Score</span><strong id="cmpScore0" class="text-center mono-font"></strong><strong id="cmpScore1" class="text-center mono-font"></strong>
+                <span>Highest load</span><strong id="cmpLoad0" class="text-center mono-font"></strong><strong id="cmpLoad1" class="text-center mono-font"></strong>
+                <span>Missed</span><strong id="cmpMiss0" class="text-center mono-font"></strong><strong id="cmpMiss1" class="text-center mono-font"></strong>
+              </div>
+              <p id="cmpSummary" class="mt-2 text-xs leading-relaxed text-left"></p>
+            </div>
+            <button onclick="openSupportPicker()" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition">Try again with support</button>
             <div class="flex flex-col sm:flex-row gap-2">
               <a href="#whatHelps" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-sm transition">See what helps</a>
               <button onclick="startQuizFromBeginning()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold text-sm transition">Try again</button>
               <button onclick="changeGrade()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold text-sm transition">Change grade</button>
             </div>
           </div>
+        </div>
+
+        <!-- 7. SUPPORT PICKER -->
+        <div id="supportOverlay" class="hidden absolute inset-0 z-[45] bg-slate-950/75 backdrop-blur-sm flex flex-col items-center p-4 overflow-y-auto">
+          <div class="my-auto w-full max-w-md bg-white text-slate-900 rounded-3xl p-3.5 sm:p-4 shadow-2xl border-2 border-slate-200 flex flex-col gap-2">
+            <h3 id="supportHeading" tabindex="-1" class="text-lg font-extrabold heading-font text-slate-950 text-center outline-none">Choose your supports</h3>
+            <p class="text-xs text-slate-600 text-center">Pick what would help, then try 10 new questions in the same room.</p>
+            <fieldset class="grid gap-1.5">
+              <legend class="sr-only">Supports</legend>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="headphones" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Noise-cancelling headphones</span><span class="block text-[11px] text-slate-600 leading-snug">Hum, static, ticking, and the bird get much quieter. The teacher stays clear.</span></span>
+                </label>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="seat" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Seat away from the window and lights</span><span class="block text-[11px] text-slate-600 leading-snug">Glare drops, and the window and bird fade out of view.</span></span>
+                </label>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="move" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Movement break first</span><span class="block text-[11px] text-slate-600 leading-snug">Restlessness drops, and body-focused thoughts come less often.</span></span>
+                </label>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="time" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Extra time</span><span class="block text-[11px] text-slate-600 leading-snug">Double the time for each question.</span></span>
+                </label>
+                <label class="flex items-start gap-3 rounded-xl border-2 border-slate-200 hover:border-indigo-300 px-2.5 py-1.5 cursor-pointer has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
+                  <input type="checkbox" value="notes" class="support-option mt-0.5 w-4 h-4 accent-indigo-600 shrink-0" />
+                  <span><span class="block text-sm font-bold text-slate-900">Written support</span><span class="block text-[11px] text-slate-600 leading-snug">A notepad keeps the question in view, so a stray thought can’t wipe the numbers.</span></span>
+                </label>
+            </fieldset>
+            <p id="supportError" role="alert" class="hidden text-xs font-bold text-rose-700 text-center">Choose at least one support.</p>
+            <div class="flex gap-2">
+              <button onclick="closeSupportPicker()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-900 font-bold text-sm transition">Back</button>
+              <button onclick="startSupportRound()" class="flex-[2] py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition">Start with support</button>
+            </div>
+            <p class="text-xs text-slate-500 text-center leading-relaxed">These supports are simplified. In real life, what helps is different for every child.</p>
+          </div>
+        </div>
+
+        <!-- Active supports card -->
+        <div id="supportCard" class="hidden absolute right-3 z-[33] flex items-center gap-2 pl-2.5 pr-1 py-1 rounded-xl bg-indigo-950/90 text-white shadow-xl pointer-events-none">
+          <span class="text-[11px] font-bold whitespace-nowrap">Supports on</span>
+          <span id="supportCardList" class="text-sm tracking-wide whitespace-nowrap"></span>
+          <span id="supportNotepad" class="hidden rounded-lg bg-amber-50 text-slate-900 px-2 py-0.5 border-l-4 border-rose-400 whitespace-nowrap">
+            <span class="sr-only">My notes: </span><span id="supportNotepadText" class="text-xs font-extrabold mono-font"></span>
+          </span>
         </div>
 
         <!-- TOP HUD: DYNAMIC SENSORY LOAD METER & QUIZ PROGRESS -->
@@ -1154,7 +1210,7 @@
       <div class="max-w-3xl space-y-2">
         <h2 class="text-2xl sm:text-3xl font-extrabold heading-font tracking-tight text-slate-950">What Actually Helps</h2>
         <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-          Small changes to the room and the routine can make school more manageable. No single list fits every child, so treat these as starting points.
+          Small changes to the room and the routine can make school more manageable. No single list fits every child, so treat these as starting points. After a quiz, choose <strong>Try again with support</strong> to test some of them in the simulator.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1434,6 +1490,7 @@
 
     // A stray thought briefly knocks one number out of mind
     function triggerMemorySlip() {
+      if (hasSupport('notes') && baselineDials) return false;
       if (!isQuizStarted || memorySlipTimer || userAnswers[currentQuizIndex]) return false;
       const q = quizDatabase[currentQuizIndex];
       showProblem(q, Math.random() < 0.5 ? 0 : 1);
@@ -1446,6 +1503,7 @@
 
     function renderQuiz() {
       const q = quizDatabase[currentQuizIndex];
+      updateSupportNotepad();
       setTimeout(teacherReadQuestion, 350);
 
       clearMemorySlip();
@@ -1624,7 +1682,7 @@
     document.addEventListener('fullscreenchange', onFullscreenChange);
     document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
-    function startQuizFromBeginning() {
+    function startQuizFromBeginning(withSupport) {
       initAudio();
       questionTimeLimit = parseInt(document.getElementById('timeLimitSelect').value, 10);
       // New random questions on every start, including Try again
@@ -1640,6 +1698,8 @@
         dialsBeforeFinish = null;
         syncDials();
       }
+      if (withSupport === true && activeSupports) applySupports();
+      else clearSupports();
       peakLoad = calculateLoad();
       currentQuizIndex = 0;
       // Clear answers
@@ -1714,6 +1774,7 @@
 
     function changeGrade() {
       stopTeacher();
+      firstResult = null;
       isQuizStarted = false;
       isQuizFinished = false;
       selectedGrade = null;
@@ -1725,6 +1786,8 @@
         dialsBeforeFinish = null;
         syncDials();
       }
+      baselineDials = null;
+      clearSupports();
       document.getElementById('quizResultsOverlay').classList.add('hidden');
       document.getElementById('quizStartOverlay').classList.remove('hidden', 'opacity-0', 'pointer-events-none');
       document.getElementById('startQuizText').textContent = 'Start Quiz';
@@ -1741,7 +1804,7 @@
         return;
       }
       if (restartArmTimer) {
-        startQuizFromBeginning();
+        startQuizFromBeginning(Boolean(activeSupports && baselineDials));
         return;
       }
       // Second click within 3 seconds confirms the restart
@@ -1879,13 +1942,11 @@
       document.getElementById('resultMissed').textContent = quizDatabase.length - correct - wrong;
       document.getElementById('resultPeak').textContent = `${peakLoad}%`;
 
+      showSupportComparison({ correct, missed: quizDatabase.length - correct - wrong, peak: peakLoad });
+      setSceneSupportLook(false);
+
       isQuizFinished = true;
-      dialsBeforeFinish = {
-        soundLevel: state.soundLevel,
-        lightLevel: state.lightLevel,
-        adhdLevel: state.adhdLevel,
-        tactileLevel: state.tactileLevel
-      };
+      dialsBeforeFinish = baselineDials ? copyDials(baselineDials) : copyDials(state);
       applyPreset('calm');
 
       playBeep(600, 0.1);
@@ -2233,7 +2294,7 @@
       // Keep the screen busy but never completely buried
       if (container.children.length >= 5) container.firstElementChild.remove();
 
-      const pool = Math.random() * 100 < state.tactileLevel * 0.5 ? bodyThoughts : intrusiveThoughtsList;
+      const pool = Math.random() * 100 < state.tactileLevel * (hasSupport('move') && baselineDials ? 0.15 : 0.5) ? bodyThoughts : intrusiveThoughtsList;
       let thought = pool[Math.floor(Math.random() * pool.length)];
       let styleName = pickThoughtStyle();
       if (Math.random() < (state.adhdLevel / 100) * 0.4 && triggerMemorySlip()) {
@@ -2337,6 +2398,127 @@
     }
 
 
+
+
+    // ---------------- Try it with support ----------------
+    const supportInfo = {
+      headphones: { icon: '🎧', label: '🎧 Headphones', phrase: 'noise-cancelling headphones' },
+      seat: { icon: '🪑', label: '🪑 Seat away from window', phrase: 'a seat away from the window' },
+      move: { icon: '🏃', label: '🏃 Movement break', phrase: 'a movement break' },
+      time: { icon: '⏱️', label: '⏱ Extra time', phrase: 'extra time' },
+      notes: { icon: '📝', label: '📝 Written support', phrase: 'written support' }
+    };
+    let activeSupports = null;
+    let baselineDials = null;
+    let firstResult = null;
+
+    const dialKeys = ['soundLevel', 'lightLevel', 'adhdLevel', 'tactileLevel'];
+    const copyDials = src => Object.fromEntries(dialKeys.map(k => [k, src[k]]));
+    const hasSupport = key => Boolean(activeSupports && activeSupports.has(key));
+
+    function joinWords(list) {
+      if (list.length < 2) return list.join('');
+      return `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`;
+    }
+
+    function openSupportPicker() {
+      document.getElementById('quizResultsOverlay').classList.add('hidden');
+      document.getElementById('supportError').classList.add('hidden');
+      document.querySelectorAll('.support-option').forEach(box => { box.checked = hasSupport(box.value); });
+      document.getElementById('supportOverlay').classList.remove('hidden');
+      fitClassroomScene();
+      document.getElementById('supportHeading').focus({ preventScroll: true });
+    }
+
+    function closeSupportPicker() {
+      document.getElementById('supportOverlay').classList.add('hidden');
+      document.getElementById('quizResultsOverlay').classList.remove('hidden');
+    }
+
+    function startSupportRound() {
+      const picked = [...document.querySelectorAll('.support-option')].filter(b => b.checked).map(b => b.value);
+      if (!picked.length) {
+        document.getElementById('supportError').classList.remove('hidden');
+        return;
+      }
+      activeSupports = new Set(picked);
+      document.getElementById('supportOverlay').classList.add('hidden');
+      startQuizFromBeginning(true);
+    }
+
+    function setSceneSupportLook(on) {
+      const win = document.getElementById('focusWindow');
+      if (win) {
+        win.style.filter = on && hasSupport('seat') ? 'blur(5px)' : '';
+        win.style.opacity = on && hasSupport('seat') ? '0.5' : '';
+      }
+      const card = document.getElementById('supportCard');
+      card.classList.toggle('hidden', !on);
+      if (on) {
+        const list = document.getElementById('supportCardList');
+        list.textContent = [...activeSupports].map(k => supportInfo[k].icon).join(' ');
+        list.setAttribute('aria-label', [...activeSupports].map(k => supportInfo[k].phrase).join(', '));
+        document.getElementById('supportNotepad').classList.toggle('hidden', !hasSupport('notes'));
+        updateSupportNotepad();
+      }
+    }
+
+    function updateSupportNotepad() {
+      if (!hasSupport('notes') || !quizDatabase[currentQuizIndex]) return;
+      document.getElementById('supportNotepadText').textContent = quizDatabase[currentQuizIndex].boardMath;
+    }
+
+    function applySupports() {
+      if (!baselineDials) baselineDials = copyDials(state);
+      Object.assign(state, baselineDials);
+      if (hasSupport('headphones')) state.soundLevel = Math.round(state.soundLevel * 0.3);
+      if (hasSupport('seat')) state.lightLevel = Math.round(state.lightLevel * 0.25);
+      if (hasSupport('move')) state.tactileLevel = Math.round(state.tactileLevel * 0.25);
+      if (hasSupport('time') && questionTimeLimit > 0) questionTimeLimit *= 2;
+      syncDials();
+      setSceneSupportLook(true);
+    }
+
+    function clearSupports() {
+      if (baselineDials) {
+        Object.assign(state, baselineDials);
+        baselineDials = null;
+        syncDials();
+      }
+      activeSupports = null;
+      setSceneSupportLook(false);
+      document.getElementById('supportOverlay').classList.add('hidden');
+    }
+
+    function showSupportComparison(result) {
+      const box = document.getElementById('supportCompare');
+      if (!activeSupports || !firstResult) {
+        firstResult = result;
+        box.classList.add('hidden');
+        document.getElementById('resultLoadNote').classList.remove('hidden');
+        return;
+      }
+      const set = (id, v) => { document.getElementById(id).textContent = v; };
+      set('cmpScore0', `${firstResult.correct}/10`);
+      set('cmpScore1', `${result.correct}/10`);
+      set('cmpLoad0', `${firstResult.peak}%`);
+      set('cmpLoad1', `${result.peak}%`);
+      set('cmpMiss0', firstResult.missed);
+      set('cmpMiss1', result.missed);
+      const used = joinWords([...activeSupports].map(k => supportInfo[k].phrase));
+      const usedCap = used.charAt(0).toUpperCase() + used.slice(1);
+      let line;
+      if (result.correct > firstResult.correct) {
+        line = `With ${used}, your score went from ${firstResult.correct} to ${result.correct}.`;
+      } else if (result.peak < firstResult.peak) {
+        line = `Your score went from ${firstResult.correct} to ${result.correct} this time, but ${used} brought your highest load down from ${firstResult.peak}% to ${result.peak}%. Scores vary from round to round.`;
+      } else {
+        line = `${usedCap} didn't change much this time. Try a different mix of supports. What helps is different for everyone.`;
+      }
+      set('cmpSummary', line);
+      box.classList.remove('hidden');
+      document.getElementById('resultLoadNote').classList.add('hidden');
+    }
 
     // ---------------- Teacher's voice ----------------
     const teacherRemarks = [
@@ -2584,6 +2766,8 @@
         const clear = `${hud.offsetTop + hud.offsetHeight + 12}px`;
         document.getElementById('quizStartOverlay').style.paddingTop = clear;
         document.getElementById('quizResultsOverlay').style.paddingTop = clear;
+        document.getElementById('supportOverlay').style.paddingTop = clear;
+        document.getElementById('supportCard').style.top = `${hud.offsetTop + hud.offsetHeight + 6}px`;
       }
       const sceneWidth = document.getElementById('simStageViewport').clientWidth;
       const thoughtSize = Math.min(30, Math.max(12, sceneWidth / 60));
